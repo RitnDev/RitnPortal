@@ -1,0 +1,1 @@
+require("prototypes.items.ritn-portal-capsule")
