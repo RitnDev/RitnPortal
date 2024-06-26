@@ -14,7 +14,8 @@
             "not-blueprintable", 
             "not-deconstructable", 
             "not-flammable", 
-            "not-rotatable"
+            "not-rotatable",
+            "not-on-map"
         },
         minable = {hardness = 0.2, mining_time = 0.5},
         max_health = 10000,

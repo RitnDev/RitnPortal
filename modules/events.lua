@@ -6,8 +6,9 @@ local function on_init_mod(event)
     ---------------------------------------------
     remote.call("RitnCoreGame", "init_data", "portal", {
         id = 0,         -- unit_number
-        name = "",
+        type = "player",
         destination = "",
+        request = "",
         surface_name = "",
         force_name = "",
         position = {x=0, y=0},
@@ -15,7 +16,23 @@ local function on_init_mod(event)
         tag_number = -1,
         index = 0,
     })
+    remote.call("RitnCoreGame", "init_data", "portal_request", {
+        id = 0,         -- unit_number
+        type = "player",
+        surface_name = "",
+    })
+    remote.call("RitnCoreGame", "init_data", "portal_requester", {
+        input = {},
+        output = {},
+    })
     remote.call("RitnCoreGame", "add_param_data", "surface", "portals", {})
+    local options = remote.call("RitnCoreGame", "get_options")
+    options.portal = {
+        linkable = {},
+        linked = {},
+        requests = {},
+    }
+    remote.call("RitnCoreGame", "set_options", options)
     -------------------------------------------------------------
     log('on_init : RitnPortal -> finish !')
 end
@@ -26,7 +43,8 @@ end
 
 
 local function customInput_close_frame(event)
-    remote.call("RitnPortal", "gui_action_portal", "close", event)
+    remote.call("RitnPortal", "gui_action_portal", 
+    ritnlib.defines.portal.gui_actions.portal.close, event)
 end
 
 -------------------------------------------

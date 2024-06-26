@@ -40,10 +40,12 @@ local graphics = dir .. "/graphics/"
 local gui = graphics .. "gui/"
 defines.graphics = {
     gui = {
-        button_edit = gui .. "edit.png",
-        button_up = gui .. "up.png",
-        button_down = gui .. "down.png",
-        button_valid = gui .. "valid.png",
+        button_close = gui .. "close-white.png",
+        button_link = gui .. "icon-link-white.png",
+        button_unlink = gui .. "icon-unlink-white.png",
+        inbound_link = gui .. "inbound-link-white.png",
+        button_ask_link = gui .. "ask-link-white.png",
+        button_unrequest = gui .. "ask-cancel-white.png"
     },
     entity = {
         portal = graphics .. "entity/ritn-portal/ritn-portal.png",
@@ -100,11 +102,12 @@ defines.gui_actions = {
     portal = {
         open = "open",
         close = "close",
-        teleport = "button-teleport",
-        edit = "button-edit",
-        valid = "button-valid",
-        up = "button-up",
-        down = "button-down",
+        list_select_change = "listbox-surfaces-selection_state_changed",
+        button_close = "button-close",
+        button_unlink = "button-unlink",
+        button_link = "button-link",
+        button_request = "button-request",
+        button_unrequest = "button-unrequest",
     },
 }
 
@@ -144,6 +147,9 @@ defines.names = {
         teleport = "tech-ritn-portal-teleportation",
         capsule = "tech-ritn-portal-teleportation",
     },
+    gui = {
+        portal = "portal"
+    },
 
 
     --GUI STYLES
@@ -152,10 +158,12 @@ defines.names = {
         ritnFrameButton = "ritn_frame_button"
     },
     sprite = {
-        button_edit = "sprite_button_edit",
-        button_up = "sprite_button_up",
-        button_down = "sprite_button_down",
-        button_valid = "sprite_button_valid",
+        inbound_link = "sprite_inbound_link",
+        button_ask_link = "sprite_button_ask_link",
+        button_close = "sprite_button_close",
+        button_link = "sprite_button_link",
+        button_unlink = "sprite_button_unlink",
+        button_unrequest = "sprite_button_unrequest",
     },
     customInput = {
         frame_close1 = defines.prefix.name .. "close-frame-portal1",
@@ -176,8 +184,15 @@ defines.names.caption = {
         titre = {"entity-name.ritn-portal"},
         label_enter = {"frame-portal.label-enter"},
         label_passenger = {"frame-portal.label-passenger"},
+        label_list_destinations = {"frame-portal.label-list-destinations"},
         button_teleport = {"frame-portal.teleport-button"},
         button_empty = {"frame-portal.button-empty"},
+        button_request = {"frame-portal.button-request"},
+        not_link = {"frame-portal.not_link"},
+        link = "frame-portal.link",
+        request = "frame-portal.request",
+        dest_not_find = {"frame-portal.dest-not-find"},
+        linkable_not_find = {"frame-portal.linkable-not-find"},
     }
 
 }

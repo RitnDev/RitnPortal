@@ -23,22 +23,31 @@ data.raw["gui-style"]["default"][ritnlib.defines.portal.names.styles.ritnFrameBu
 	selected_hovered_graphical_set = graphicalSet,
 }
 
-
-
 -- SPRITES
 RitnSprite:extend(
-	ritnlib.defines.portal.names.sprite.button_edit,
-	ritnlib.defines.portal.graphics.gui.button_edit
+	ritnlib.defines.portal.names.sprite.inbound_link,
+	ritnlib.defines.portal.graphics.gui.inbound_link,
+	64	-- image size 64x64
 )
 RitnSprite:extend(
-	ritnlib.defines.portal.names.sprite.button_up,
-	ritnlib.defines.portal.graphics.gui.button_up
+	ritnlib.defines.portal.names.sprite.button_ask_link,
+	ritnlib.defines.portal.graphics.gui.button_ask_link,
+	64	-- image size 64x64
 )
 RitnSprite:extend(
-	ritnlib.defines.portal.names.sprite.button_down,
-	ritnlib.defines.portal.graphics.gui.button_down
+	ritnlib.defines.portal.names.sprite.button_close,
+	ritnlib.defines.portal.graphics.gui.button_close
 )
 RitnSprite:extend(
-	ritnlib.defines.portal.names.sprite.button_valid,
-	ritnlib.defines.portal.graphics.gui.button_valid
+	ritnlib.defines.portal.names.sprite.button_link,
+	ritnlib.defines.portal.graphics.gui.button_link
+)
+RitnSprite:extend(
+	ritnlib.defines.portal.names.sprite.button_unlink,
+	ritnlib.defines.portal.graphics.gui.button_unlink
+)
+RitnSprite:extend(
+	ritnlib.defines.portal.names.sprite.button_unrequest,
+	ritnlib.defines.portal.graphics.gui.button_unrequest,
+	64	-- image size 64x64
 )

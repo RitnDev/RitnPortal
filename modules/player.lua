@@ -7,6 +7,17 @@ local RitnGuiPortal = require(ritnlib.defines.portal.class.guiPortal)
 ---------------------------------------------------------------------------------------------
 
 
+local function on_player_changed_surface(e)
+    local rEvent = RitnEvent(e)
+    local rPlayer = RitnEvent(e):getPlayer()
+
+    if string.sub(rPlayer.surface.name, 1, string.len(rEvent.prefix_lobby)) ~= rEvent.prefix_lobby then
+        RitnSurface(rPlayer.surface):addRequester()
+    end
+end
+
+
+
 local function on_player_used_capsule(e)
     if global.portal.modules.player == false then return end
     local rEvent = RitnEvent(e)
@@ -76,12 +87,44 @@ local function on_player_mined_entity(e)
 end
 
 
+local function on_player_driving_changed_state(e) 
+    if global.portal.modules.player == false then return end
+    local rEvent = RitnEvent(e)
+    local LuaEntity = rEvent.entity 
+
+    if LuaEntity then 
+        local rPortal = RitnPortal(LuaEntity)
+        if rPortal then 
+            
+            local driving = false
+            if rPlayer.driving and rPortal.drive ~= nil then
+                if rPortal.drive.name == rPlayer.name then 
+                    driving = true
+                elseif rPortal.drive.type == "character" then 
+                    if rPortal.drive.player.name == rPlayer.name then 
+                        driving = true
+                    end
+                end
+            end
+
+            if driving then 
+                if rPortal:exist() then 
+                    RitnGuiPortal(e):action_close()
+                end
+            end
+        end
+    end
+end
+
+
 ---------------------------------------------------------------------------------------------
 local module = {events = {}}
 ---------------------------------------------------------------------------------------------
 -- Events Player
+module.events[defines.events.on_player_changed_surface] = on_player_changed_surface
 module.events[defines.events.on_player_cursor_stack_changed] = on_player_cursor_stack_changed
 module.events[defines.events.on_player_used_capsule] = on_player_used_capsule
 module.events[defines.events.on_player_mined_entity] = on_player_mined_entity
+--module.events[defines.events.on_player_driving_changed_state] = on_player_driving_changed_state
 ---------------------------------------------------------------------------------------------
 return module

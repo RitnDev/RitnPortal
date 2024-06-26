@@ -7,6 +7,9 @@ if global.portal == nil then
             player = true,
             portal = true,
         },
+        gui = {
+            portal = require(ritnlib.defines.portal.gui.portal),
+        },
         tileNoPortal = {
             ["out-of-map"] = true,
             ["deepwater"] = true,
@@ -18,23 +21,28 @@ end
 -- REMOTE FUNCTIONS INTERFACE
 ---------------------------------------------------------------------------------------------
 local RitnGuiPortal = require(ritnlib.defines.portal.class.guiPortal)
+local stringUtils = require(ritnlib.defines.constants).strings
 ---------------------------------------------------------------------------------------------
 local portal_interface = {
     ["gui_action_portal"] = function(action, event)
         if action == ritnlib.defines.portal.gui_actions.portal.open then 
-            RitnGuiTeleporter(event):action_open()
+            RitnGuiPortal(event):action_open()
         elseif action == ritnlib.defines.portal.gui_actions.portal.close then 
-            RitnGuiTeleporter(event):action_close()
-        elseif action == ritnlib.defines.portal.gui_actions.portal.teleport then 
-            RitnGuiTeleporter(event):action_teleport()
-        elseif action == ritnlib.defines.portal.gui_actions.portal.valid then 
-            RitnGuiTeleporter(event):action_valid()
-        elseif action == ritnlib.defines.portal.gui_actions.portal.edit then 
-            RitnGuiTeleporter(event):action_edit()
-        elseif action == ritnlib.defines.portal.gui_actions.portal.up then 
-            RitnGuiTeleporter(event):action_up()
-        elseif action == ritnlib.defines.portal.gui_actions.portal.down then 
-            RitnGuiTeleporter(event):action_down()
+            RitnGuiPortal(event):action_close()
+        elseif action == ritnlib.defines.portal.gui_actions.portal.list_select_change then 
+            local rGuiPortal = RitnGuiPortal(event)
+            local list = rGuiPortal.element
+            rGuiPortal:selectListSurfacesChange(list)
+        elseif action == ritnlib.defines.portal.gui_actions.portal.button_close then 
+            RitnGuiPortal(event):action_close()
+        elseif action == ritnlib.defines.portal.gui_actions.portal.button_request then 
+            RitnGuiPortal(event):action_request()
+        elseif action == ritnlib.defines.portal.gui_actions.portal.button_unrequest then 
+            RitnGuiPortal(event):action_unrequest()
+        elseif action == ritnlib.defines.portal.gui_actions.portal.button_link then 
+            RitnGuiPortal(event):action_link()
+        elseif action == ritnlib.defines.portal.gui_actions.portal.button_unlink then 
+            RitnGuiPortal(event):action_unlink()
         end
     end,
     --disable modules
@@ -44,6 +52,23 @@ local portal_interface = {
     ["disable.module.portal"] = function()
         global.portal.modules.portal = false
     end,
+
+    ["get_gui_portal"] = function()
+        return global.portal.gui.portal
+    end,
+    -- create portal gui
+    ["create_portal_gui"] = function(gui_start, elements) 
+        local content = {}
+        
+        content["start"] = gui_start
+    
+        for i, element in pairs(elements) do 
+            log("> add GuiElement : ".. element.name .. stringUtils.special["right-arrow-decorator"] .. element.parent)
+            content[element.name] = content[element.parent].add(element.gui)
+        end
+
+        return content
+    end
 }
 
 remote.add_interface("RitnPortal", portal_interface)

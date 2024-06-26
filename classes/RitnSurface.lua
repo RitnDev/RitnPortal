@@ -1,28 +1,102 @@
 -- RitnSurface
 ----------------------------------------------------------------
-local class = require(ritnlib.defines.class.core)
-local RitnCoreSurface = require(ritnlib.defines.core.class.surface)
-----------------------------------------------------------------
+local flib = require(ritnlib.defines.other)
 local table = require(ritnlib.defines.table)
-local constants = require(ritnlib.defines.constants)
+local string = require(ritnlib.defines.string)
+local stringUtils = require(ritnlib.defines.constants).strings
 ----------------------------------------------------------------
 --- CLASSE DEFINES
 ----------------------------------------------------------------
-local RitnSurface = class.newclass(RitnCoreSurface, function(base, LuaSurface)
-    if LuaSurface == nil then return end
-    if LuaSurface.valid == false then return end
-    if LuaSurface.object_name ~= "LuaSurface" then return end
-    RitnCoreSurface.init(base, LuaSurface)
+RitnPortalSurface = ritnlib.classFactory.newclass(RitnCoreSurface, function(self, LuaSurface)
+    RitnCoreSurface.init(self, LuaSurface)
     --------------------------------------------------
-    base.data_portal = remote.call("RitnCoreGame", "get_data", "portal")
+    self.data_portal = remote.call("RitnCoreGame", "get_data", "portal")
     --------------------------------------------------
-    base.TOKEN_PORTAL_LINKED_SEPARATED = constants.strings.special["two-way-arrow-decorator"]
-    base.TOKEN_PORTAL_NOT_LINKED = constants.strings.tilde3
+    self.TOKEN_PORTAL_LINKED_SEPARATED = stringUtils.special["two-way-arrow-decorator"]
+    self.TOKEN_PORTAL_NOT_LINKED = stringUtils.tilde3
+    self.TOKEN_EMPTY_STRING = stringUtils.empty
 
     log('> [RitnPortal] > RitnSurface')
 end)
 
 ----------------------------------------------------------------
+
+-- Ajoute la surface le système de demande de liaison pour la surface
+function RitnSurface:addRequester()
+    if self.isNauvis then return end
+    -- update du nombre de portail linkable
+    local options = remote.call("RitnCoreGame", "get_options")
+
+    if options.portal.requests[self.name] == nil then 
+        options.portal.requests[self.name] = remote.call("RitnCoreGame", "get_data", "portal_requester")
+    end
+    if options.portal.linked[self.name] == nil then 
+        options.portal.linked[self.name] = {}
+    end
+
+    remote.call("RitnCoreGame", "set_options", options)
+end
+
+
+
+-- Ajoute un portail dans la liste : core.options.portal.linkable
+function RitnSurface:addLinkablePortal()
+    -- update du nombre de portail linkable
+    local options = remote.call("RitnCoreGame", "get_options")
+
+    if options.portal.linkable[self.name] then 
+        options.portal.linkable[self.name] = options.portal.linkable[self.name] + 1
+    else
+        options.portal.linkable[self.name] = 1
+    end
+
+    remote.call("RitnCoreGame", "set_options", options)
+end
+
+
+-- Retire un portail dans la liste : core.options.portal.linkable
+function RitnSurface:removeLinkablePortal()
+    log("> "..self.object_name..":removeLinkablePortal()")
+
+    local options = remote.call("RitnCoreGame", "get_options")
+
+    -- on décrémente un portail linkable des compteurs   
+    if options.portal.linkable[self.name] ~= nil then 
+        if options.portal.linkable[self.name] > 1 then 
+            options.portal.linkable[self.name] = options.portal.linkable[self.name] - 1
+        else
+            options.portal.linkable[self.name] = nil
+        end
+    end
+    
+    remote.call("RitnCoreGame", "set_options", options)
+end
+
+
+-- Retire unun request input/output : core.options.portal.requests
+function RitnSurface:removeRequestPortal(request)
+    local options = remote.call("RitnCoreGame", "get_options")
+    
+    if (string.isNotEmptyString(request)) then 
+        log("delete request: " .. flib.ifElse(request == nil, "nil", request))
+        -- récupération de toutes les demandes de liaison
+        local requests = options.portal.requests
+
+        -- suppression des demandes entrantes/sortantes
+        requests[request].input[self.name] = nil
+        local output_requests = requests[self.name].output
+        for index,output in pairs(output_requests) do 
+            if output == request then 
+                table.remove(output_requests, index)
+            end
+        end
+        requests[self.name].output = output_requests
+        options.portal.requests = requests
+    end
+    
+    remote.call("RitnCoreGame", "set_options", options)
+end
+
 
 -- Création du portail via la capsule
 function RitnSurface:createPortal(rEvent)
@@ -62,7 +136,7 @@ function RitnSurface:createPortal(rEvent)
 
     --create render text
     local renderId = rendering.draw_text{
-        text=self.name .. self.TOKEN_PORTAL_LINKED_SEPARATED .. self.TOKEN_PORTAL_NOT_LINKED,
+        text=self.TOKEN_PORTAL_NOT_LINKED,
         surface=self.surface,
         target=LuaEntity,
         alignment = "center",
@@ -75,7 +149,7 @@ function RitnSurface:createPortal(rEvent)
     local tag = rPlayer.force.add_chart_tag(self.surface, {
         position=position,
         icon= {type = "virtual", name = ritnlib.defines.portal.names.entity.portal},	
-        text=self.name .. self.TOKEN_PORTAL_LINKED_SEPARATED .. self.TOKEN_PORTAL_NOT_LINKED,
+        text=self.TOKEN_PORTAL_NOT_LINKED,
         last_user = rPlayer.player
     })
 
@@ -85,17 +159,27 @@ function RitnSurface:createPortal(rEvent)
     local data_portal = self.data_portal
     self.data[self.name].portals[id_portal] = data_portal
     self.data[self.name].portals[id_portal].id = id_portal
-    self.data[self.name].portals[id_portal].name = self.name .. self.TOKEN_PORTAL_LINKED_SEPARATED .. self.TOKEN_PORTAL_NOT_LINKED
     self.data[self.name].portals[id_portal].position = position
     self.data[self.name].portals[id_portal].render_id = renderId
     self.data[self.name].portals[id_portal].tag_number = tag.tag_number
     self.data[self.name].portals[id_portal].destination = self.TOKEN_PORTAL_NOT_LINKED
-    self.data[self.name].portals[id_portal].surface_name = self.surface.name
+    self.data[self.name].portals[id_portal].surface_name = self.name
     self.data[self.name].portals[id_portal].force_name = rPlayer.force.name
     self.data[self.name].portals[id_portal].index = nbPortal + 1
 
     self:update()
 
+    -- update du nombre de portail linkable
+    self:addLinkablePortal()
+
+end
+
+
+-- Retourne un portail de la surface par son id
+function RitnSurface:getPortal(id_portal)
+    local portal = self.data[self.name].portals[id_portal]
+    local LuaEntity = self:getEntity(portal.position, id_portal, ritnlib.defines.portal.names.entity.portal, 'car')
+    return RitnPortalPortal(LuaEntity)
 end
 
 
@@ -112,6 +196,7 @@ function RitnSurface:removePortal(rEvent)
     local id_portal = LuaEntity.unit_number
     local tag_number = self.data[self.name].portals[id_portal].tag_number
     local index = self.data[self.name].portals[id_portal].index
+    local request = self.data[self.name].portals[id_portal].request
 
     self.data[self.name].portals[id_portal] = nil
     
@@ -125,21 +210,9 @@ function RitnSurface:removePortal(rEvent)
         tabTag[1].destroy()
     end
 
-    -- mise à jour des index des portals
-    local portals = self.data[self.name].portals
-    for _,portal in pairs(portals) do 
-        if (portal.index > index) then 
-            portal.index = portal.index - 1
-        end
-    end
-    self.data[self.name].portals = portals
-
     self:update()
+
+    -- update du nombre de portail linkable
+    self:removeRequestPortal(request)
+    self:removeLinkablePortal()
 end
-
-
-
-
-
-
-return RitnSurface

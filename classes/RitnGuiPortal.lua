@@ -1,39 +1,39 @@
 -- RitnGuiPortal
 ----------------------------------------------------------------
-local class = require(ritnlib.defines.class.core)
-local libStyle = require(ritnlib.defines.class.gui.style)
-local libGui = require(ritnlib.defines.class.luaClass.gui)
-----------------------------------------------------------------
-local RitnPlayer = require(ritnlib.defines.core.class.player)
-local RitnPortal = require(ritnlib.defines.portal.class.portal)
 ----------------------------------------------------------------
 local font = ritnlib.defines.names.font
+local stringUtils = require(ritnlib.defines.constants).strings
 local fGui = require(ritnlib.defines.portal.gui.portal)
+local util = require(ritnlib.defines.other)
 local table = require(ritnlib.defines.table)
+local string = require(ritnlib.defines.string)
 ----------------------------------------------------------------
 --- CLASSE DEFINES
 ----------------------------------------------------------------
-local RitnGuiPortal = class.newclass(libGui, function(base, event)
-    libGui.init(base, event, ritnlib.defines.portal.name, "frame-main")
-    base.object_name = "RitnGuiPortal"
+RitnGuiPortal = ritnlib.classFactory.newclass(RitnLibGui, function(self, event)
+    RitnLibGui.init(self, event, ritnlib.defines.portal.name, "frame-main")
+    self.object_name = "RitnGuiPortal"
     --------------------------------------------------
-    base.gui_name = "portal"
-    base.gui_action = {
-        [base.gui_name] = {
+    self.gui_name = ritnlib.defines.portal.names.gui.portal
+    self.gui_action = {
+        [self.gui_name] = {
             [ritnlib.defines.portal.gui_actions.portal.open] = true,
             [ritnlib.defines.portal.gui_actions.portal.close] = true,
-            [ritnlib.defines.portal.gui_actions.portal.teleport] = true,
-            [ritnlib.defines.portal.gui_actions.portal.edit] = true,
-            [ritnlib.defines.portal.gui_actions.portal.valid] = true,
-            [ritnlib.defines.portal.gui_actions.portal.up] = true,
-            [ritnlib.defines.portal.gui_actions.portal.down] = true,
+            [ritnlib.defines.portal.gui_actions.portal.list_select_change] = true,
+            [ritnlib.defines.portal.gui_actions.portal.button_close] = true,
+            [ritnlib.defines.portal.gui_actions.portal.button_request] = true,
+            [ritnlib.defines.portal.gui_actions.portal.button_unrequest] = true,
+            [ritnlib.defines.portal.gui_actions.portal.button_link] = true,
+            [ritnlib.defines.portal.gui_actions.portal.button_unlink] = true,
         }
     }    
     --------------------------------------------------
-    base.gui = { base.player.gui.screen }
+    self.gui = { self.player.gui.screen }
     --------------------------------------------------
-    base.content = fGui.getContent()
+    self.content = remote.call("RitnPortal", "get_gui_portal").content
     --------------------------------------------------
+    self.REQUEST_SEPARATOR = stringUtils.puce["triangular-decorator"]
+    self.TOKEN_PORTAL_LINKED_SEPARATED = stringUtils.tilde3
 end)
 
 ----------------------------------------------------------------
@@ -41,133 +41,127 @@ end)
 
 function RitnGuiPortal:create(...)
     if self.gui[1][self.gui_name.."-"..self.main_gui] then return self end
-    local rPortal, selecter = ...
-    if selecter == nil then selecter = 1 end
-
-    local element = fGui.getElement(self.gui_name)
-
-    -- assembly gui elements
-    local content = {
-        flow = {},
-        frame = {},
-        label = {},
-        button = {},
-    }
-
-
-    -- frame Portal
-    content.frame.main =            self.gui[1].add(element.frame.main)
-    content.frame.submain =         content.frame.main.add(element.frame.submain)
-    -- label info
-    content.label.info =            content.frame.submain.add(element.label.info)
-    -- flow namer
-    content.flow.namer =            content.frame.submain.add(element.flow.namer)
-    -- label namer
-    content.label.namer =           content.flow.namer.add(element.label.namer)
-    -- button edit
-    content.button.edit =           content.flow.namer.add(element.button.edit)
-    -- flow namer
-    content.flow.edit =             content.frame.submain.add(element.flow.edit)
-    -- label namer
-    content.text =                  content.flow.edit.add(element.text)
-    -- button edit
-    content.button.valid =          content.flow.edit.add(element.button.valid)
-    -- line 
-    content.line =                  content.frame.submain.add(element.line)
-
-    -- label enter
-    content.label.enter =           content.frame.submain.add(element.label.enter)
-
-    -- empty list teleport
-    content.flow.empty =            content.frame.submain.add(element.flow.empty)
-    content.button.empty =          content.flow.empty.add(element.button.empty)
-
-    -- flow teleport
-    content.flow.teleport =         content.frame.submain.add(element.flow.teleport)
-    -- list surfaces
-    content.list =                  content.flow.teleport.add(element.list)
-    -- flow dialog
-    content.flow.dialog =           content.flow.teleport.add(element.flow.dialog)
-    -- button edit
-    content.button.down =           content.flow.dialog.add(element.button.down)
-    -- button edit
-    content.button.up =             content.flow.dialog.add(element.button.up)
-    -- empty
-    content.empty =                 content.flow.dialog.add(element.empty)
-    -- button request
-    content.button.teleport =       content.flow.dialog.add(element.button.teleport)
+    local rPortal, selecter_index = ...
+    if selecter_index == nil then selecter_index = 1 end
     
+    local rPlayer = RitnCorePlayer(self.player)
+    local isOwner = rPlayer:isOwner()
 
 
-    local driving = false
-    if self.driving and rPortal.drive ~= nil then
-        if rPortal.drive.name == self.name then 
-            content.label.enter.visible = false
-            driving = true
-        elseif rPortal.drive.type == "character" then 
-            if rPortal.drive.player.name == self.name then 
-                content.label.enter.visible = false
-                driving = true
-            end
+    local elements = remote.call("RitnPortal", "get_gui_portal").elements
+    local content = remote.call("RitnPortal", "create_portal_gui", self.gui[1], elements)
+
+    local isLinked = rPortal:isLinked()
+    local isRequester = rPortal:isRequester()
+    local isPassenger = rPortal.passenger
+
+    log("> selecter_index: " .. tostring(selecter_index))
+    log("> isOwner: " .. tostring(isOwner))
+    log("> isLinked: " .. tostring(isLinked))
+    log("> isRequester: " .. tostring(isRequester))
+    log("> self.driving: " .. tostring(self.driving))
+    log("> isPassenger: " .. tostring(isPassenger))
+
+    if isLinked then
+        content["enter"].visible = true
+        content["enter"].caption = ritnlib.defines.portal.names.caption.frame_portal.label_enter
+        content["flow-empty_surfaces"].visible = false
+        content["flow-dialog"].visible = true
+
+        if self.driving and util.ifElse(isPassenger == nil, false, isPassenger) then 
+            content["enter"].visible = true
+            content["enter"].caption = ritnlib.defines.portal.names.caption.frame_portal.label_passenger
+        else 
+            content["enter"].visible = false
         end
-    elseif self.driving == false then 
-        content.label.enter.caption = ritnlib.defines.portal.names.caption.frame_portal.label_enter
+    else 
+        content["enter"].visible = false
+        content["flow-empty_surfaces"].visible = true
     end
 
+    log("> content['enter'].visible = " .. tostring(content["enter"].visible))
+
     -- styles guiElement
-    content.label.info.caption = {rPortal.data.id, rPortal.data.surface_name}
-    content.label.namer.caption = rPortal.data.name
-    content.text.text = rPortal.data.name
-    content.frame.main.auto_center = true
+    content["info"].caption = {rPortal.data.id, rPortal.data.surface_name, rPortal.data.type}
+    content["namer"].caption = rPortal:getLinkDestination()
+    content["main"].auto_center = true
+    content["header"].drag_target = content["main"]
+    content["title"].drag_target = content["main"]
+    content["dragspace"].drag_target = content["main"]
+
     ----
-    libStyle(content.frame.main):padding(4)
-    libStyle(content.frame.submain):padding(4):stretchable()
-    libStyle(content.flow.namer):padding(4)
-    libStyle(content.label.namer):font(font.bold18):width(275)
-    libStyle(content.button.edit):spriteButton(28)
-    libStyle(content.flow.edit):padding(8)
-    libStyle(content.text):font(font.default18):width(275)
-    libStyle(content.button.valid):spriteButton(28)
-    libStyle(content.label.enter):padding(4)
-    libStyle(content.flow.teleport):padding(4):stretchable()
-    libStyle(content.list):horizontalStretch():maxHeight(500)
-    libStyle(content.flow.dialog):horizontalStretch():topPadding(4)
-    libStyle(content.button.down):spriteButton(28)
-    libStyle(content.button.up):spriteButton(28)
-    libStyle(content.empty):stretchable()
-    libStyle(content.button.teleport):height(30)
-    libStyle(content.flow.empty):padding(4):height(80)
-    libStyle(content.button.empty):stretchable():fontColor("white", true, true)
-
     
-    if driving then
+    libStyle(content["frame-top"]):topPadding(4):rightPadding(8):leftPadding(8)
+    libStyle(content["header"]):verticalStretch(false)
+    libStyle(content["dragspace"]):stretchable():height(24):rightMargin(8)
+    libStyle(content["flow-namer"]):padding(4)
+    libStyle(content["namer"]):font(font.bold14):width(275)
+    libStyle(content["submain"]):padding(4):margin(4):stretchable()
+    libStyle(content["enter"]):padding(4)
+    libStyle(content["flow-empty_surfaces"]):padding(4):height(40)
+    libStyle(content["button-empty_surfaces"]):stretchable():fontColor("white", true, true)
+    libStyle(content["flow-surfaces"]):padding(4):stretchable():bottomPadding(0)
+    libStyle(content["list-surfaces"]):horizontalStretch():maxHeight(500)
+    libStyle(content["empty-empty"]):stretchable()
+    libStyle(content["flow-dialog_surfaces"]):padding(4)
+    libStyle(content["button-request"]):align("right"):spriteButton()
+    libStyle(content["button-link"]):align("right"):spriteButton()
+    libStyle(content["flow-dialog"]):padding(4)
+    libStyle(content["button-unlink"]):spriteButton()
 
-        local surfaces = remote.call('RitnCoreGame', 'get_surfaces')
-        local portals = surfaces[rPortal.surface.name].portals
-        local nbPortal = table.length(portals) - 1
+    local listSurfacesNotEmpty = false
+    
+    -- Votre portail est en cours de demande de liaison avec une destination
+    if isRequester == true then 
+        content["flow-surfaces"].visible = false
+        content["flow-empty_surfaces"].visible = false
 
-        if nbPortal > 0 then 
-            content.flow.teleport.visible = true
+        content["namer"].caption = rPortal:getRequest()
+        content["button-unrequest"].visible = true
 
-            local thisIndex = rPortal.data.index   
-            -- temporary table portal sort by index
-            local tabTemp = {}
-            for i,value in pairs(portals) do 
-                tabTemp[portals[i].index] = value
+    else -- Votre portail n'a aucune demande en cours
+
+        --Récupération de la liste des demandes de liaison
+        local listRequests = rPortal:getListRequests()
+        if table.isEmpty(listRequests) == false then
+            log("> "..self.object_name.."create(...) > content.flow.linkable.visible = true")
+
+            content["flow-empty_surfaces"].visible = false
+            listSurfacesNotEmpty = true
+
+            for _,surface in pairs(listRequests) do 
+                content["list-surfaces"].add_item("[img=".. ritnlib.defines.portal.names.sprite.inbound_link ..
+                "]".. self.REQUEST_SEPARATOR .. surface)
             end
-
-            --> add portal on the list
-            for _,portal in pairs(tabTemp) do 
-                if portal.name ~= nil then
-                    if thisIndex ~= portal.index then
-                        content.list.add_item(portal.name)
-                    end
-                end
-            end 
-            content.list.selected_index = selecter
-        else 
-            content.flow.empty.visible = true
+        else
+            log("> "..self.object_name.."create(...) > content.flow.linkable.visible = false") 
         end
+
+
+        -- récupération de la liste des surfaces destinations
+        local listSurfaces = rPortal:getListSurfaces()
+        if table.isEmpty(listSurfaces) == false then
+            log("> "..self.object_name.."create(...) > content.flow.surfaces.visible = true") 
+
+            content["flow-empty_surfaces"].visible = false
+            listSurfacesNotEmpty = true
+
+            for _,surface in pairs(listSurfaces) do 
+                local index = table.indexOf(listRequests, surface)
+                if index < 0 then       
+                    content["list-surfaces"].add_item(surface)
+                end
+            end
+        else 
+            log("> "..self.object_name.."create(...) > content.flow.surfaces.visible = false") 
+        end
+
+        -- si la liste n'est pas vide on selectionne l'index 'selecter_index' (par defaut le premier)
+        if listSurfacesNotEmpty == true and isLinked == false then 
+            content["flow-surfaces"].visible = true
+            self:selectListSurfacesChange(content["list-surfaces"], selecter_index)
+        end
+
     end
 
     return self
@@ -182,6 +176,88 @@ function RitnGuiPortal:closeGuiEntity()
             self.player.opened = nil
         end
     end
+end
+
+-- Retourne la RitnSurface (surface) associé au GUI
+function RitnGuiPortal:getSurface()
+    log('> '..self.object_name..':getSurface()')
+    ----
+    local surface_name = self:getElement("label", "info").caption[2]
+    if string.isNotEmptyString(surface_name) and type(game.surfaces[surface_name]) ~= 'nil' then 
+        return ritnlib.classes.portal.surface(game.surfaces[surface_name])
+    end
+end
+
+
+-- Action sur le GUI à faire lors de la selection dans la liste des surfaces
+function RitnGuiPortal:selectListSurfacesChange(list, selecter_index)
+    if list == nil then return end
+    if list.valid == false then return end
+    ----
+    local button_request = self:getElement("button","request")
+    local button_link = self:getElement("button","link")
+    ----
+
+    local item_select, iStart, iEnd = self:indexOfRequestSeparator(list, selecter_index)
+    log("> item_select: " .. util.ifElse(item_select == nil, "nil", item_select))
+    log("> iStart: " .. util.ifElse(iStart == nil, "nil", iStart))
+    log("> iEnd: " .. util.ifElse(iEnd == nil, "nil", iEnd))
+
+    -- On vérifie qu'il y a bien un élément sélectionné
+    if item_select == nil then 
+        button_request.enabled = false
+        button_link.enabled = false
+        log('> '..self.object_name..':selectListSurfacesChange() -> no selected item')
+        return
+    else
+        log('> '..self.object_name..':selectListSurfacesChange() -> item selected : '.. item_select)
+        button_request.enabled = true
+        button_link.enabled = true
+    end
+
+    -- Gestion de visibilité des boutons
+    if iStart == nil then 
+        -- la selection n'est pas une demande entrante
+        button_link.visible = false
+        button_request.visible = true
+        button_request.tooltip = {'tooltip.button-request', item_select}
+    else 
+        -- la selection est une demande entrante
+        button_request.visible = false
+        if string.length(item_select) > 0 then 
+            local input_request_name = string.sub(item_select, iEnd + 1, string.len(item_select))
+            button_link.visible = true
+            button_link.tooltip = {'tooltip.button-link', input_request_name}
+        end
+    end
+end
+
+
+
+-- Retourne l'index de début et de fin du séparateur de demande s'il existe
+-- S'il n'est pas présent ça retourne nil
+-- @return selected_index, indexStart, indexEnd
+function RitnGuiPortal:indexOfRequestSeparator(list, selecter_index)
+
+    -- forcage de l'element selectionné si le paramètre est renseigné
+    -- lavaleur doit-être dans l'intervalle de la taille de la liste
+    if selecter_index ~= nil and selecter_index > 0 and selecter_index <= table.length(list.items) then 
+        list.selected_index = selecter_index
+        log("force selected index by : " .. selecter_index)
+    end
+
+    -- index de l'element sélectionné dans la liste
+    local selected_index = list.selected_index
+
+    -- On vérifie qu'il y a bien un élément sélectionné
+    if selected_index == nil then return nil end 
+    if selected_index == 0 then return nil end 
+
+    -- On récupère la valeur se trouvant à cet index
+    local item_select = list.get_item(selected_index)
+
+    -- Onretourne le resultat avec le select_item en premier element
+    return item_select, string.find(item_select, self.REQUEST_SEPARATOR)
 end
 
 
@@ -205,224 +281,200 @@ function RitnGuiPortal:action_open(...)
 end
 
 
-
-function RitnGuiPortal:action_teleport()
+-- Demande de liaison à un portail non lié d'une autre map
+function RitnGuiPortal:action_request()
     local info = self:getElement("label", "info")
-    local list = self:getElement("list")
-    ----
-    local surface_name = info.caption[2]
-    local selected_index = list.selected_index
-    local item_select = list.get_item(selected_index)
-    ----
-    local surfaces = remote.call("RitnCoreGame", "get_surfaces")
-    local portals = surfaces[surface_name].portals
-    local id = table.index(portals, 'name', item_select)
-    local portal = portals[id]
-    
-    local tabEntities = game.surfaces[surface_name].find_entities_filtered({
-        name=ritnlib.defines.portal.names.entity.portal, 
-        type='car',
-        position=portal.position,
-    })
-    if table.length(tabEntities) > 0 then 
-        tabEntities[1].set_passenger(self.player)
-    end
-    log('> '..self.object_name..':action_teleport('.. self.player.name ..')')
-    return self
-end
-
-
-function RitnGuiPortal:action_edit()
-    local flow_edit = self:getElement("flow", "edit")
-    local flow_namer = self:getElement("flow", "namer")
-    local textfield = self:getElement("text")
-    ----
-    flow_namer.visible = false
-    flow_edit.visible = true
-    ----
-    textfield.select_all()
-    textfield.focus()
-    ----
-    log('> '..self.object_name..':action_edit('.. self.player.name ..')')
-    return self
-end
-
-
-function RitnGuiPortal:action_valid()
-    local textfield = self:getElement("text")
-    local info = self:getElement("label", "info")
-    ----
+    local list = self:getElement("list", "surfaces")
+    ---- recupération des infos
     local id = tonumber(info.caption[1])
     local surface_name = info.caption[2]
-    ----
-    local surfaces = remote.call("RitnCoreGame", "get_surfaces")
-    local render_id = surfaces[surface_name].portals[id].render_id
-    local position = surfaces[surface_name].portals[id].position
-    local force_name = surfaces[surface_name].portals[id].force_name
-    ----
-    surfaces[surface_name].portals[id].name = textfield.text
+    ---- récupération de la surface à qui ont envoie la demande
+    local selected_index = list.selected_index
+    local select_detination = list.get_item(selected_index)
+
+    ---- création de la demande de liaison
+    local new_request = remote.call("RitnCoreGame", "get_data", "portal_request")
+    new_request.id = id 
+    new_request.surface_name = surface_name
     
-    -- set rendering
-    rendering.set_text(render_id, textfield.text)
+    -- récupération des options
+    local options = remote.call("RitnCoreGame", "get_options")
+    -- récupération de toutes les demandes de liaison
+    local requests = options.portal.requests
 
-    -- set tag map
-    local area = {
-        {position.x - 0.5, position.y - 0.5},
-        {position.x + 0.5, position.y + 0.5},
-    }
-    local tabTag = game.forces[force_name].find_chart_tags(surface_name, area)
+    -- création de la nouvelle demande
+    requests[select_detination].input[surface_name] = new_request
+    table.insert(requests[surface_name].output, select_detination)
 
-    if table.length(tabTag) > 0 then 
-        tabTag[1].text = textfield.text
-        tabTag[1].last_user = self.player
-    end
-    ----
-    remote.call("RitnCoreGame", "set_surfaces", surfaces)
-    ----
+    util.tryCatch(
+        function() self:getSurface():getPortal(id, surface_name):addRequest(select_detination) end
+    )
+
+    -- Mise à jour des options
+    options.portal.requests = requests
+    remote.call("RitnCoreGame", "set_options", options)
+
+    log('> '..self.object_name..':action_request()')
     self:action_close()
-    log('> '..self.object_name..':action_valid('.. self.player.name ..')')
-    return self
 end
 
 
-function RitnGuiPortal:action_up()
+-- Annule la demande de liaison à un portail en cours
+function RitnGuiPortal:action_unrequest()
+    -- TODO: Refait le code de l'action_link en utilisant RitnSurface et RitnPortal comme un peu l'action_request
+    -- Sa sera plus propre avec du code réutilisable
+    -- set_text_tag par exemple
+    -- berf tu vois le truc.
+end
+
+
+-- Demande de liaison accepté
+function RitnGuiPortal:action_link()
     local info = self:getElement("label", "info")
-    local list = self:getElement("list")
-    ----
+    local list = self:getElement("list", "surfaces")
+    ---- recupération des infos
     local id = tonumber(info.caption[1])
     local surface_name = info.caption[2]
-    local selected_index = list.selected_index
-    ----
-    if selected_index == 0 then return self end
-    ----
+
+    -- récupération de l'identité du demandeur
+    local item_select, iStart, iEnd = self:indexOfRequestSeparator(list)
+    if string.isEmptyString(item_select) or iEnd == nil then
+        log('item_select is nil or empty or iEnd == nil')
+        return
+    end 
+
+    -- Récupération de la surface de destination
+    local surface_destination = string.sub(item_select, iEnd + 1, string.len(item_select))
+    if string.isEmptyString(surface_destination) then 
+        log('surface_destination is nil or empty')
+        return 
+    end
+
+    -- récupération des options
+    local options = remote.call("RitnCoreGame", "get_options")
+    -- récupération de toutes les demandes de liaison
+    local requests = options.portal.requests
+    -- récupération de la demande entrantes de la destination
+    local input_request = requests[surface_name].input[surface_destination]
+    -- vérification que la demande est toujours présente
+    if input_request == nil then 
+        log('input_request is nil')
+        return 
+    end
+
+    -- récupération des surfaces 
     local surfaces = remote.call("RitnCoreGame", "get_surfaces")
-    local portals = surfaces[surface_name].portals
-    local portal = portals[id]
-    ----
-    local item_select = list.get_item(selected_index)
-    local id_select = table.index(portals, 'name', item_select)
-    local portal_select = portals[id_select]
-    ----
-    local tabTemp = {}
-    for i,value in pairs(portals) do 
-        tabTemp[portals[i].index] = value
+    -- récupération du portail demandeur
+    local portal_destination = surfaces[input_request.surface_name].portals[input_request.id]
+    -- vérification que le portail demandeur n'est pas déjà relié
+    if portal_destination.destination ~= self.TOKEN_PORTAL_LINKED_SEPARATED then 
+        log('portal_destination.destination ~= ' .. self.TOKEN_PORTAL_LINKED_SEPARATED)
+        return 
     end
-    ----
-    local pass = false
-    local new_index = portal_select.index
-    if portal_select.index - 1 == portal.index then 
-        pass = true
-        new_index = new_index - 2
-    else 
-        new_index = new_index - 1
+    -- vérification que le portail demandeur n'a pas fait une autre demande depuis.
+    if portal_destination.request ~= surface_name then
+        log('portal_destination.request ~= ' .. surface_name)
+        return 
     end
-    -- check si pas déjà en haut de la liste
-    if new_index == 0 then return self end
-    ----
-    table.remove(tabTemp, portal_select.index)
-    table.insert(tabTemp, new_index, portal_select)
-    tabTemp[new_index].index = new_index
-    if pass then 
-        tabTemp[new_index + 1].index = new_index + 1
-        tabTemp[new_index + 2].index = new_index + 2
-    else 
-        tabTemp[new_index + 1].index = new_index+1
+    -- vérification que le type de demande est identique
+    if portal_destination.type ~= input_request.type then 
+        log('portal_destination.type ~= ' .. input_request.type)
+        return 
     end
-    ----
-    local tmp_portals = portals
-    portals = {}
-    for id,value in pairs(tmp_portals) do 
-        portals[id] = value
-        for y,_ in pairs(tabTemp) do 
-            if tabTemp[y].id == id then 
-                portals[id].index = tabTemp[y].index
-            end
+     
+    -- récupération du portail actuel
+    local portal_origine = surfaces[surface_name].portals[id]
+    -- vérification que le portail n'est pas déjà relié
+    if portal_origine.destination ~= self.TOKEN_PORTAL_LINKED_SEPARATED then 
+        log('portal_origine.destination ~= ' .. self.TOKEN_PORTAL_LINKED_SEPARATED)
+        return 
+    end
+    -- vérification que le portail n'a pas fait une autre demande depuis.
+    if string.isNotEmptyString(portal_origine.request) then 
+        log('portal_origine.request is nil or empty')
+        return 
+    end
+    -- vérification que le type de portail est identique à la demande
+    if portal_origine.type ~= input_request.type then 
+        log('portal_origine.type ~= ' .. input_request.type)
+        return 
+    end
+
+    -- Liaison établi on enregistre les changements
+    portal_destination.destination = surface_name
+    portal_destination.request = stringUtils.empty
+    portal_origine.destination = input_request.surface_name
+    portal_origine.request = stringUtils.empty
+
+    -- récupération des render_id (texte render) et tag_number (gps) pour modification
+    local render_id_destination = portal_destination.render_id
+    local render_id_origine = portal_origine.render_id
+    
+    -- enregistrement des infos surfaces (liaison établit)
+    surfaces[input_request.surface_name].portals[input_request.id] = portal_destination
+    surfaces[surface_name].portals[id] = portal_origine
+    remote.call("RitnCoreGame", "set_surfaces", surfaces)
+
+    -- suppression des demandes entrantes/sortantes
+    requests[surface_name].input[surface_destination] = nil
+    local output_requests = requests[surface_destination].output
+    for index,output in pairs(output_requests) do 
+        if output == surface_name then 
+            table.remove(output_requests, index)
         end
     end
-    ----
-    surfaces[surface_name].portals = portals
-    remote.call("RitnCoreGame", "set_surfaces" , surfaces)
-    local rPortal = RitnPortal(self.vehicle)
-    if rPortal.data.index < portal_select.index then 
-        new_index = new_index - 1
-    end
-    self:action_open(rPortal, new_index)
-    ----
-    log('> '..self.object_name..':action_up('.. self.player.name ..')')
-    return self
-end
+    requests[surface_destination].output = output_requests
+    options.portal.requests = requests
 
--- permet de descendre un element de la liste des portals
-function RitnGuiPortal:action_down()
-    -- recupere le label "info" (il est invisible sur l'interface et permet d'avoir des info sur le portal id + surface)
-    local info = self:getElement("label", "info")
-    local list = self:getElement("list")
-    ----
-    local id = tonumber(info.caption[1]) -- recuperation de l'id : unit_number de l'entité Portal
-    local surface_name = info.caption[2] -- surface où se trouve l'entité Portal
-    local selected_index = list.selected_index -- index selectionné dans la liste actuellement
-    ----
-    if selected_index == 0 then return self end
-    ---- 
-    local surfaces = remote.call("RitnCoreGame", "get_surfaces")
-    local portals = surfaces[surface_name].portals
-    local portal = portals[id]
-    local nbPortal = table.length(portals)
-    ----
-    local item_select = list.get_item(selected_index)
-    local id_select = table.index(portals, 'name', item_select)
-    local portal_select = portals[id_select]
-    ----
-    local tabTemp = {}
-    for i,value in pairs(portals) do 
-        tabTemp[portals[i].index] = value
-    end
-    ----
-    local pass = false
-    local new_index = portal_select.index
-    if portal_select.index + 1 == portal.index then 
-        pass = true
-        new_index = new_index + 2
-    else 
-        new_index = new_index + 1
-    end
-    -- check si pas déjà en bas de la liste
-    if new_index == nbPortal + 1 then return self end
-    ----
-    table.remove(tabTemp, portal_select.index)
-    portal_select.index = new_index
-    if pass then 
-        tabTemp[new_index] = portal_select
-        tabTemp[new_index-1].index = new_index-1
-        tabTemp[new_index-2].index = new_index-2
-    else 
-        tabTemp[new_index] = portal_select
-        tabTemp[new_index-1].index = new_index-1
-    end
-    ----
-    local tmp_portals = portals
-    portals = {}
-    for id,value in pairs(tmp_portals) do 
-        portals[id] = value
-        for y,_ in pairs(tabTemp) do 
-            if tabTemp[y].id == id then 
-                portals[id].index = tabTemp[y].index
-            end
+    -- on décrémente un portail linkable des compteurs
+    if options.portal.linkable[surface_name] ~= nil then 
+        if options.portal.linkable[surface_name] > 1 then 
+            options.portal.linkable[surface_name] = options.portal.linkable[surface_name] - 1
+        else
+            options.portal.linkable[surface_name] = nil
         end
     end
-    ----
-    surfaces[surface_name].portals = portals
-    remote.call("RitnCoreGame", "set_surfaces" , surfaces)
-    local rPortal = RitnPortal(self.vehicle)
-    if rPortal.data.index < portal_select.index then 
-        new_index = new_index - 1
+
+    -- On ajoute le lien entre les 2 surfaces
+    table.insert(options.portal.linked[surface_name], surface_destination)
+    table.insert(options.portal.linked[surface_destination], surface_name)
+
+    -- On enregistre les modifications des options portals
+    remote.call("RitnCoreGame", "set_options", options)
+
+    -- set rendering
+    rendering.set_text(render_id_origine, surface_destination)
+    rendering.set_text(render_id_destination, surface_name)
+
+    -- set chart_tag (gps)
+    local tag_origine = RitnCoreForce(game.forces[portal_origine.force_name]):getChartTag(
+                                        portal_origine.tag_number, 
+                                        portal_origine.surface_name, 
+                                        portal_origine.position)
+    if tag_origine ~= nil then
+        tag_origine.text = surface_destination
+        tag_origine.last_user = self.player
     end
-    self:action_open(rPortal, new_index)
-    ----
-    log('> '..self.object_name..':action_down('.. self.player.name ..')')
-    return self
+
+    local tag_destination = RitnCoreForce(game.forces[portal_destination.force_name]):getChartTag(
+                                        portal_destination.tag_number, 
+                                        portal_destination.surface_name, 
+                                        portal_destination.position)
+
+    if tag_destination ~= nil then
+        tag_destination.text = surface_destination
+        tag_destination.last_user = self.player
+    end
+
+    log('> '..self.object_name..':action_link()')
+    self:action_close()
 end
 
+
+-- Coupe la liaison établi entre les 2 portails
+function RitnGuiPortal:action_unlink()
+    
+end
 
 ----------------------------------------------------------------
-return RitnGuiPortal
+--return RitnGuiPortal
