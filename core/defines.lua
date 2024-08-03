@@ -1,7 +1,7 @@
 -----------------------------------------
 --               DEFINES               --
 -----------------------------------------
-if not ritnlib then require("__RitnBaseGame__.core.defines") end
+if not ritnlib then require("__RitnLobbyGame__.core.defines") end
 -----------------------------------------
 local name = "RitnPortal"
 local dir = "__".. name .."__"
@@ -116,8 +116,9 @@ defines.gui_actions = {
 --settings 
 local settings_prefix = defines.prefix.name .. defines.prefix.mod
 defines.settings = {
-    portal_enable = {
-        name = settings_prefix .. "portal-enable",
+    prefix = settings_prefix,
+    show_research = {
+        name = settings_prefix .. "show-research",
         value = true, 
     }
 }
@@ -136,11 +137,9 @@ defines.names = {
         portal = "ritn-portal", 
     },
     item = {
-        remote = "ritn-portal-remote", 
         capsule = "ritn-portal-capsule", 
     },
     recipe = {
-        remote = "ritn-portal-remote", 
         capsule = "ritn-portal-capsule", 
     },
     technology = {

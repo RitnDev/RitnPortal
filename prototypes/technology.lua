@@ -6,8 +6,8 @@ data:extend({
         name = ritnlib.defines.portal.names.technology.capsule,
         icon = ritnlib.defines.portal.graphics.techno.capsule,
         icon_size = 64,
-        hidden = true,
-        enabled = false,
+        hidden = false,
+        enabled = true,
         effects = {
             {type = "unlock-recipe", recipe = ritnlib.defines.portal.names.recipe.capsule },
         },

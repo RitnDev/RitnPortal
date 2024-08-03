@@ -20,7 +20,6 @@ end
 ---------------------------------------------------------------------------------------------
 -- REMOTE FUNCTIONS INTERFACE
 ---------------------------------------------------------------------------------------------
-local RitnGuiPortal = require(ritnlib.defines.portal.class.guiPortal)
 local stringUtils = require(ritnlib.defines.constants).strings
 ---------------------------------------------------------------------------------------------
 local portal_interface = {

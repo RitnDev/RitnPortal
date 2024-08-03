@@ -1,45 +1,43 @@
-local libGuiElement = require(ritnlib.defines.class.gui.element)
 local captions = ritnlib.defines.portal.names.caption.frame_portal
 local defines = ritnlib.defines.portal.names
 local gui_name = ritnlib.defines.portal.names.gui.portal
 
 local element = {
     flow = {
-        header = libGuiElement(gui_name,"flow","header"):horizontal():get(),
-        namer = libGuiElement(gui_name,"flow","namer"):horizontal():get(),
-        surfaces = libGuiElement(gui_name,"flow","surfaces"):vertical():visible(false):get(),
-        dialog = libGuiElement(gui_name,"flow","dialog"):visible(false):horizontal():get(),
-        dialog_surfaces = libGuiElement(gui_name,"flow","dialog_surfaces"):horizontal():get(),
-        empty_surfaces = libGuiElement(gui_name,"flow","empty_surfaces"):horizontal():visible(false):get(),
+        header = RitnLibGuiElement(gui_name,"flow","header"):horizontal():get(),
+        namer = RitnLibGuiElement(gui_name,"flow","namer"):horizontal():get(),
+        surfaces = RitnLibGuiElement(gui_name,"flow","surfaces"):vertical():visible(false):get(),
+        dialog_surfaces = RitnLibGuiElement(gui_name,"flow","dialog_surfaces"):horizontal():get(),
+        empty_surfaces = RitnLibGuiElement(gui_name,"flow","empty_surfaces"):horizontal():visible(false):get(),
     },
     frame = {
-        main = libGuiElement(gui_name,"frame","main"):vertical():style("frame-ritngui"):get(),
-        top = libGuiElement(gui_name,"frame","top"):style("frame-bg-ritngui"):get(),
-        submain = libGuiElement(gui_name,"frame","submain"):vertical():style("inside_shallow_frame"):get(),
+        main = RitnLibGuiElement(gui_name,"frame","main"):vertical():style("frame-ritngui"):get(),
+        top = RitnLibGuiElement(gui_name,"frame","top"):style("frame-bg-ritngui"):get(),
+        submain = RitnLibGuiElement(gui_name,"frame","submain"):vertical():style("inside_shallow_frame"):get(),
     },
     label = {
-        title = libGuiElement(gui_name, "label", "title"):caption(captions.titre):style("frame_title"):get(),
-        info = libGuiElement(gui_name,"label","info"):visible(false):get(),
-        namer = libGuiElement(gui_name,"label","namer"):get(),
-        enter = libGuiElement(gui_name,"label","enter"):caption(captions.label_passenger):get(),
-        list_dest = libGuiElement(gui_name,"label","list_dest"):caption(captions.label_list_destinations):get(),
+        title = RitnLibGuiElement(gui_name, "label", "title"):caption(captions.titre):style("frame_title"):get(),
+        info = RitnLibGuiElement(gui_name,"label","info"):visible(false):get(),
+        namer = RitnLibGuiElement(gui_name,"label","namer"):get(),
+        enter = RitnLibGuiElement(gui_name,"label","enter"):caption(captions.label_passenger):get(),
+        list_dest = RitnLibGuiElement(gui_name,"label","list_dest"):caption(captions.label_list_destinations):get(),
     },
     button = {
-        close = libGuiElement(gui_name,"sprite-button","close"):spritePath('utility/close_white'):style("frame_action_button"):mouseButtonFilter():get(),
-        valid = libGuiElement(gui_name, "sprite-button", "valid"):spritePath(defines.sprite.button_valid):style("frame_button"):get(),
-        link = libGuiElement(gui_name,"sprite-button","link"):spritePath(defines.sprite.button_link):style("frame_action_button"):visible(false):get(),
-        unlink = libGuiElement(gui_name,"sprite-button","unlink"):spritePath(defines.sprite.button_unlink):style("frame_action_button"):get(),
-        request = libGuiElement(gui_name,"sprite-button","request"):spritePath(defines.sprite.button_ask_link):style("frame_action_button"):get(),
-        unrequest = libGuiElement(gui_name,"sprite-button","unrequest"):spritePath(defines.sprite.button_unrequest):style("frame_action_button"):visible(false):get(),
-        empty_surfaces = libGuiElement(gui_name, "button", "empty_surfaces"):style(ritnlib.defines.portal.names.styles.ritnFrameButton):caption(captions.dest_not_find):enabled(false):get(),
+        close = RitnLibGuiElement(gui_name,"sprite-button","close"):spritePath('utility/close_white'):style("frame_action_button"):mouseButtonFilter():get(),
+        valid = RitnLibGuiElement(gui_name, "sprite-button", "valid"):spritePath(defines.sprite.button_valid):style("frame_button"):get(),
+        link = RitnLibGuiElement(gui_name,"sprite-button","link"):spritePath(defines.sprite.button_link):style("frame_action_button"):visible(false):get(),
+        unlink = RitnLibGuiElement(gui_name,"sprite-button","unlink"):spritePath(defines.sprite.button_unlink):style("frame_action_button"):visible(false):get(),
+        request = RitnLibGuiElement(gui_name,"sprite-button","request"):spritePath(defines.sprite.button_ask_link):style("frame_action_button"):get(),
+        unrequest = RitnLibGuiElement(gui_name,"sprite-button","unrequest"):spritePath(defines.sprite.button_unrequest):style("frame_action_button"):visible(false):get(),
+        empty_surfaces = RitnLibGuiElement(gui_name, "button", "empty_surfaces"):style(ritnlib.defines.portal.names.styles.ritnFrameButton):caption(captions.dest_not_find):enabled(false):get(),
     },
-    line = libGuiElement(gui_name,"line","line"):horizontal():get(),
+    line = RitnLibGuiElement(gui_name,"line","line"):horizontal():get(),
     list = {
-        surfaces = libGuiElement(gui_name,"list-box","surfaces"):get(),
+        surfaces = RitnLibGuiElement(gui_name,"list-box","surfaces"):get(),
     },
     empty = {
-        empty = libGuiElement(gui_name,"empty-widget","empty"):get(),
-        dragspace = libGuiElement(gui_name,"empty-widget","dragspace"):style("draggable_space_header"):get(),
+        empty = RitnLibGuiElement(gui_name,"empty-widget","empty"):get(),
+        dragspace = RitnLibGuiElement(gui_name,"empty-widget","dragspace"):style("draggable_space_header"):get(),
     }    
 }
 
@@ -142,7 +140,7 @@ local content = {
         unlink = {
             "frame-main",
             "frame-submain",
-            "flow-dialog",
+            "flow-namer",
             "button-unlink",
         },
         request = {
@@ -245,6 +243,11 @@ local elements = {
                     name = "button-unrequest",
                     gui = element.button.unrequest
                 },
+                {
+                    parent = "flow-namer",
+                    name = "button-unlink",
+                    gui = element.button.unlink
+                },
 
             {
                 parent = "submain",
@@ -304,19 +307,6 @@ local elements = {
                         name = "button-request",
                         gui = element.button.request
                     },
-                -- flow-surfaces
-                {
-                    parent = "submain",
-                    name = "flow-dialog",
-                    gui = element.flow.dialog
-                },
-                    {
-                        parent = "flow-dialog",
-                        name = "button-unlink",
-                        gui = element.button.unlink
-                    },
-
-
 }
 
 -----------------------------------------

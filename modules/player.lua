@@ -1,18 +1,14 @@
 -- MODULE : PLAYER
 ---------------------------------------------------------------------------------------------
-local RitnEvent = require(ritnlib.defines.core.class.event)
-local RitnSurface = require(ritnlib.defines.portal.class.surface)
-local RitnPortal = require(ritnlib.defines.portal.class.portal)
-local RitnGuiPortal = require(ritnlib.defines.portal.class.guiPortal)
+local util = require(ritnlib.defines.other)
 ---------------------------------------------------------------------------------------------
 
-
 local function on_player_changed_surface(e)
-    local rEvent = RitnEvent(e)
-    local rPlayer = RitnEvent(e):getPlayer()
+    local rEvent = RitnCoreEvent(e)
+    local rPlayer = RitnCoreEvent(e):getPlayer()
 
     if string.sub(rPlayer.surface.name, 1, string.len(rEvent.prefix_lobby)) ~= rEvent.prefix_lobby then
-        RitnSurface(rPlayer.surface):addRequester()
+        RitnPortalSurface(rPlayer.surface):setupPortalSystem()
     end
 end
 
@@ -20,49 +16,34 @@ end
 
 local function on_player_used_capsule(e)
     if global.portal.modules.player == false then return end
-    local rEvent = RitnEvent(e)
+    local rEvent = RitnCoreEvent(e)
     local rPlayer = rEvent:getPlayer()
-    RitnSurface(rPlayer.surface):createPortal(rEvent)
+    RitnPortalSurface(rPlayer.surface):createPortal(rEvent)
 end
 
 
 
 local function on_player_cursor_stack_changed(e) 
     if global.portal.modules.player == false then return end
-    local rEvent = RitnEvent(e)
-    local rPlayer = rEvent:getPlayer()
-
-    if rPlayer == nil then return end
-    if rPlayer.player.cursor_stack.count == 0 then return end
-    
-    local LuaItemStack = rPlayer.player.cursor_stack
-    if LuaItemStack == nil then return end
-    if LuaItemStack.valid == false then return end
-    
-    if LuaItemStack.name == ritnlib.defines.portal.names.item.capsule then 
-        local players = remote.call("RitnCoreGame", "get_players")
-        if rPlayer.player.surface.name == players[rPlayer.player.index].origine or "nauvis" then return end 
-        if rPlayer.player.cursor_stack.count == 0 then return end
-
-        rPlayer.player.clear_cursor()
-        rPlayer.player.print(ritnlib.defines.portal.names.caption.msg.cursor)
-    end
+    local rPlayer = RitnCoreEvent(e):getPlayer()
+    rPlayer:clearCursor(ritnlib.defines.portal.names.item.capsule, ritnlib.defines.portal.names.caption.msg.cursor)
 end
 
 
 
+-- On retire un portail de la surface (minage)
 local function on_player_mined_entity(e)
     if global.portal.modules.player == false then return end
-    local rEvent = RitnEvent(e)
+    local rEvent = RitnCoreEvent(e)
     local LuaEntity = rEvent.entity 
-    RitnSurface(LuaEntity.surface):removePortal(rEvent)
+    RitnPortalSurface(LuaEntity.surface):removePortal(rEvent)
 
     -- On actualise le RitnGuiPortal s'il y en a un d'ouvert
     local rPlayer = rEvent:getPlayer()
     local LuaEntity = rPlayer.vehicle 
 
     if LuaEntity then 
-        local rPortal = RitnPortal(LuaEntity)
+        local rPortal = RitnPortalPortal(LuaEntity)
         if rPortal then 
             
             local driving = false
@@ -87,33 +68,24 @@ local function on_player_mined_entity(e)
 end
 
 
+-- On rentre dans le portail t-elle un vehicule
 local function on_player_driving_changed_state(e) 
     if global.portal.modules.player == false then return end
-    local rEvent = RitnEvent(e)
+    local rEvent = RitnCoreEvent(e)
+    local rPlayer = rEvent:getPlayer()
     local LuaEntity = rEvent.entity 
 
     if LuaEntity then 
-        local rPortal = RitnPortal(LuaEntity)
-        if rPortal then 
-            
-            local driving = false
-            if rPlayer.driving and rPortal.drive ~= nil then
-                if rPortal.drive.name == rPlayer.name then 
-                    driving = true
-                elseif rPortal.drive.type == "character" then 
-                    if rPortal.drive.player.name == rPlayer.name then 
-                        driving = true
-                    end
-                end
-            end
+        -- On récupère l'objet RitnPortal à partir de l'entité (event)
+        local rPortal = RitnPortalPortal(LuaEntity)
 
-            if driving then 
-                if rPortal:exist() then 
-                    RitnGuiPortal(e):action_close()
-                end
-            end
+        if rPortal ~= nil or rPortal:exist() then -- si l'objet est bien un RitnPortal et non nil
+            rPortal:teleport(rPlayer.player)
         end
+        
     end
+
+    RitnGuiPortal(rEvent.event):action_close()
 end
 
 
@@ -125,6 +97,6 @@ module.events[defines.events.on_player_changed_surface] = on_player_changed_surf
 module.events[defines.events.on_player_cursor_stack_changed] = on_player_cursor_stack_changed
 module.events[defines.events.on_player_used_capsule] = on_player_used_capsule
 module.events[defines.events.on_player_mined_entity] = on_player_mined_entity
---module.events[defines.events.on_player_driving_changed_state] = on_player_driving_changed_state
+module.events[defines.events.on_player_driving_changed_state] = on_player_driving_changed_state
 ---------------------------------------------------------------------------------------------
 return module

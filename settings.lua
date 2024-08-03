@@ -19,15 +19,11 @@ local RitnSetting = require(ritnlib.defines.class.ritnClass.setting)
 -- BY PLAYER SETTINGS
 ----------------------------------------------------------------------
 
---[[
-	{
-		-- Envoie d'un message lorsqu'une recherche est terminé et que nous sommes pas sur notre surface
-		type = "bool-setting",
-		name = ritnlib.defines.lobby.names.settings.show_research,
-		setting_type = "runtime-per-user",
-		default_value = ritnlib.defines.lobby.value.settings.show_research,
-		order = ritnlib.defines.lobby.name_prefix .. "lobby-02"
-	},
-]]
+-- Envoie d'un message lorsqu'une recherche est terminé et que nous sommes pas sur notre surface
+local rSetting = RitnSetting(ritnlib.defines.portal.settings.show_research.name):setSettingPlayer()
+rSetting:setDefaultValueBool(ritnlib.defines.portal.settings.show_research.value)
+rSetting:setOrder(ritnlib.defines.portal.settings.prefix .. '01')
+rSetting:new()
+
 
 ----------------------------------------------------------------------

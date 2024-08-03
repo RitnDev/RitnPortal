@@ -7,10 +7,14 @@ local function on_init_mod(event)
     remote.call("RitnCoreGame", "init_data", "portal", {
         id = 0,         -- unit_number
         type = "player",
-        destination = "",
+        destination = {
+            id_portal = -1,
+            surface = "",
+        },
         request = "",
         surface_name = "",
         force_name = "",
+        entity_type = "car",
         position = {x=0, y=0},
         render_id = -1,
         tag_number = -1,
