@@ -34,6 +34,8 @@ end
 -- On retire un portail de la surface (minage)
 local function on_player_mined_entity(e)
     if global.portal.modules.player == false then return end
+    log("On retire un portail de la surface")
+    
     local rEvent = RitnCoreEvent(e)
     local LuaEntity = rEvent.entity 
     RitnPortalSurface(LuaEntity.surface):removePortal(rEvent)
@@ -89,8 +91,18 @@ local function on_player_driving_changed_state(e)
 end
 
 
+local function set_events_filters()
+    script.set_event_filter(defines.events.on_player_mined_entity, {
+        {filter = "type", type = "car"},
+        {filter = "name", name = ritnlib.defines.portal.names.entity.portal}
+    })
+end
+
 ---------------------------------------------------------------------------------------------
 local module = {events = {}}
+---------------------------------------------------------------------------------------------
+-- events filters
+module.set_events_filters = set_events_filters
 ---------------------------------------------------------------------------------------------
 -- Events Player
 module.events[defines.events.on_player_changed_surface] = on_player_changed_surface
