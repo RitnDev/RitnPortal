@@ -273,6 +273,14 @@ function RitnPortalSurface:getPortal(id_portal, surface_name)
 end
 
 
+-- Retourne le RitnPortal auquel le portail id_portal est lié (ou nil si non lié)
+function RitnPortalSurface:getIdPortalDestination(id_portal)
+    if util.type(id_portal) ~= 'number' then return nil end
+
+    return self.data[self.name].portals[id_portal].destination.id_portal
+end
+
+
 -- Suppression du portail
 function RitnPortalSurface:removePortal(rEvent)
 
@@ -303,5 +311,5 @@ function RitnPortalSurface:removePortal(rEvent)
 
     -- TODO : gérer le cas où l'une des 2 joueurs propriétaire est mort
      
-    return self
+    return self, id_portal, destination
 end

@@ -195,9 +195,14 @@ end
 -- Retourne l'id enregistré dans l'interface graphique
 function RitnGuiPortal:getId()
     log('> '..self.object_name..':getId()')
+    local id = -1
     ----
-    local id_portal = tonumber(self:getElement("label", "info").caption[1]) -- id_portal
-    return tonumber(id_portal)
+    local result = pcall(function() 
+        local id_portal = tonumber(self:getElement("label", "info").caption[1]) -- id_portal
+        id = tonumber(id_portal)
+    end)
+    ---
+    return id
 end
 
 

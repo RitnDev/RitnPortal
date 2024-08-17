@@ -44,6 +44,16 @@ local portal_interface = {
             RitnGuiPortal(event):action_unlink()
         end
     end,
+
+    -- fermer un RitnGuiPortal pour un joueur et un portail précis
+    ['gui_portal_close_filter'] = function(player_index, id_portal)
+        local rGuiPortal = RitnGuiPortal({ player_index = player_index })
+        -- on vérifie que l'id correspond à l'interface que l'on souhaite fermer
+        if id_portal == rGuiPortal:getId() then 
+            rGuiPortal:action_close()
+        end
+    end,
+
     --disable modules
     ["disable.module.player"] = function()
         global.portal.modules.player = false

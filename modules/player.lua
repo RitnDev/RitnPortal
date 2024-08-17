@@ -36,36 +36,34 @@ local function on_player_mined_entity(e)
     if global.portal.modules.player == false then return end
     log("On retire un portail de la surface")
     
+    -- on capture l'event pour tranformer en RitnEvent
     local rEvent = RitnCoreEvent(e)
+    -- on récupère l'entité de l'event
     local LuaEntity = rEvent.entity 
-    RitnPortalSurface(LuaEntity.surface):removePortal(rEvent)
+    -- suppression du portail de la surface (dans les datas)
+    local rSurface, id_portal, destination = RitnPortalSurface(LuaEntity.surface):removePortal(rEvent)
 
-    -- On actualise le RitnGuiPortal s'il y en a un d'ouvert
-    local rPlayer = rEvent:getPlayer()
-    local LuaEntity = rPlayer.vehicle 
-
-    if LuaEntity then 
-        local rPortal = RitnPortalPortal(LuaEntity)
-        if rPortal then 
-            
-            local driving = false
-            if rPlayer.driving and rPortal.drive ~= nil then
-                if rPortal.drive.name == rPlayer.name then 
-                    driving = true
-                elseif rPortal.drive.type == "character" then 
-                    if rPortal.drive.player.name == rPlayer.name then 
-                        driving = true
-                    end
-                end
-            end
-
-            if driving then 
-                if rPortal:exist() then 
-                    RitnGuiPortal(e):action_open(rPortal)
-                end
-            end
-        end
+    -- on récupère la listes des joueurs et on boucle sur chacun
+    local players = remote.call('RitnCoreGame', 'get_players')
+    for _,player in pairs(players) do 
+        remote.call('RitnPortal', 'gui_portal_close_filter', player.index, LuaEntity.unit_number)
+        remote.call('RitnPortal', 'gui_portal_close_filter', player.index, id_portal)
     end
+
+
+    --[[
+    
+    X il faut gerer le cas où l'un des joueurs est morts (dans le jeu). -> repose du portail
+
+        passer LuaPlayer.ticks_to_respawn => nil = réapparition direct (pour tp direct)
+
+    X il faut fermer les GUI des joueurs pour le portail miné (si ouvert).
+    - il faut téléporter les joueurs qui ne proviennent pas de cette surface.
+
+    - uniquement le propriétaire qui peux miné le portail, sinon on doit reconstruire le portail au meme endroit
+    ]]
+    
+ 
 
 end
 
