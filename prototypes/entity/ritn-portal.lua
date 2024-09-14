@@ -1,6 +1,6 @@
-  --ritn_portal
+--ritn_portal
 
-  data:extend({
+data:extend({
 
     {
         type = "car",

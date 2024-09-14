@@ -64,8 +64,10 @@ local function on_player_driving_changed_state(e)
         -- On récupère l'objet RitnPortal à partir de l'entité (event)
         local rPortal = RitnPortalPortal(LuaEntity)
 
-        if rPortal ~= nil or rPortal:exist() then -- si l'objet est bien un RitnPortal et non nil
+        -- Ce n'est pas un portail on arrete le process
+        if rPortal == nil then return end
 
+        if rPortal:exist() then -- si l'objet est bien un RitnPortal
             -- le joueur n'est pas sur sa surface d'origine
             -- le joueur est sur la surface actuelle
             -- la surface d'origine est la destination du portail en suppression
@@ -75,12 +77,11 @@ local function on_player_driving_changed_state(e)
             else
                 rPlayer.player.driving = false
             end
-            
+
+            RitnGuiPortal(rEvent.event):action_close()
         end
         
     end
-
-    RitnGuiPortal(rEvent.event):action_close()
 end
 
 ---------------------------------------------------------------------------------------------

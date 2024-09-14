@@ -256,6 +256,7 @@ end
 -- Retourne un portail de la surface par son id
 function RitnPortalSurface:getPortal(id_portal, surface_name)
     if util.type(id_portal) ~= 'number' then return end
+    if id_portal < 0 then return end
 
     local LuaEntity
     
@@ -266,6 +267,7 @@ function RitnPortalSurface:getPortal(id_portal, surface_name)
         LuaEntity = self:getEntity(portal.position, id_portal, ritnlib.defines.portal.names.entity.portal, portal.entity_type)
     else
         log('> '.. self.object_name .. ':getPortal(id_portal: '.. tostring(id_portal) ..', surface_name: ' .. surface_name .. ')')
+        if surface_name == self.TOKEN_PORTAL_NOT_LINKED then return end
         -- on récupère le portail sur la surface de destination
         local portal = self.data[surface_name].portals[id_portal]
         LuaEntity = RitnLibSurface(game.surfaces[surface_name]):getEntity(portal.position, id_portal, ritnlib.defines.portal.names.entity.portal, portal.entity_type)

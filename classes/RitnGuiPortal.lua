@@ -349,10 +349,11 @@ end
 
 
 -- On renvoie les joueurs se trouvant sur la surface actuelle pour les renvoyer chez-eux
-function RitnGuiPortal:sendPlayersHome(rPortal, rSurface, id_portal_destination, surface_name_destination)
-    
-    -- on récupère le portail sur la surface de destination
-    local rPortalDest = rSurface:getPortal(id_portal_destination, surface_name_destination)
+function RitnGuiPortal:sendPlayersHome(rPortal, --[[ rSurface, id_portal_destination, ]] surface_name_destination)
+    -- RitnPortal(10, RitnDev) | RitnSurface(RitnDev) | 21 | Ritn
+
+    -- Pas besoin de lancer le traitement le portail n'était pas lié donc aucun joueur à renvoyer.
+    if surface_name_destination == self.TOKEN_PORTAL_NOT_LINKED then return end
 
     -- téléportation les joueurs ne se trouvant sur la map pour les renvoyer chez-eux
     for _, LuaPlayer in pairs(game.players) do 
@@ -547,7 +548,7 @@ function RitnGuiPortal:action_unlink()
     log('destination = { id_portal: '.. tostring(destination.id_portal) .. ', surface_name: ' .. tostring(destination.surface_name) .. ' }')
     
     -- On renvoie les joueurs se trouvant sur la surface actuelle pour les renvoyer chez-eux
-    self:sendPlayersHome(rPortal, rSurface, destination.id_portal, destination.surface_name) 
+    self:sendPlayersHome(rPortal, destination.surface_name) 
 
     -- Suppression du lien sur le portail d'origine
     rPortal:removeLink(self.player)
@@ -606,13 +607,9 @@ function RitnGuiPortal:action_valid()
     
     local rPortal = self:getPortal()
     local rSurface = self:getSurface()
-    local destination = {
-        id_portal = rPortal:getDestinationIdPortal(),
-        surface_name = rPortal:getDestination()
-    }
 
     -- On renvoie les joueurs se trouvant sur la surface actuelle pour les renvoyer chez-eux
-    self:sendPlayersHome(rPortal, rSurface, destination.id_portal, destination.surface_name) 
+    self:sendPlayersHome(rPortal, rPortal:getDestination())
 
     -- suppression du portail de la surface (dans les datas)
     local _rSurface, id_portal, destination = rSurface:removePortal(rPortal, self.player)

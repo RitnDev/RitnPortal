@@ -10,8 +10,16 @@ local string = require(ritnlib.defines.string)
 ----------------------------------------------------------------
 RitnPortalPortal = ritnlib.classFactory.newclass(RitnLibEntity, function(self, LuaEntity)
     RitnLibEntity.init(self, LuaEntity)
-    if self.name ~= ritnlib.defines.portal.names.entity.portal then return end
-    ----
+    --------------------------------------------------
+    -- check entity
+    local checkName = true
+    local result = pcall(function() 
+        if LuaEntity.name ~= ritnlib.defines.portal.names.entity.portal then 
+            checkName = false 
+        end
+    end)
+    if result == false or checkName == false then return end
+    --------------------------------------------------
     self.object_name = "RitnPortalPortal"
     --------------------------------------------------
     log('> '..self.object_name..'() -> init ok !')
@@ -286,8 +294,21 @@ end
 
 -- Le portail est en attente de demande de liaison avec cette destination
 function RitnPortalPortal:addRequest(destination)
-    log('[DEBUG] self.object_name = ' .. tostring(self.object_name))
-    log("> " .. self.object_name .. ":addRequest(" .. tostring(destination) ..")")
+    if string.isString(destination) == false then return end
+    log("> " .. self.object_name .. ":addRequest(" .. destination ..")")
+
+    -- récupération de la liste des surfaces destinations
+    local listSurfaces = self:getListSurfaces()   
+    log('liste des surfaces : ' .. tostring(game.table_to_json(listSurfaces)))
+
+    -- On vérifie que la destination est présent dans la liste des surfaces joignables
+    local check = false
+    for _,surface in pairs(listSurfaces) do 
+        if surface == destination then 
+            check = true
+        end
+    end
+    if check == false then return end
 
     ---- création de la demande de liaison
     local new_request = remote.call("RitnCoreGame", "get_data", "portal_request")

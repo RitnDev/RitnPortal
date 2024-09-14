@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.9.1
+Date: 14.09.2024
+  fixes:
+    - fix : Plantage lors de la destruction de portail (corrigé).
+    - fix : Renvoie les joueurs chez-eux, lorsqu'on retire la liaison au portail.
+    - fix : Vérification si une demande n'est pas déjà envoyée lorsqu'on fait nous-même une demande de liaison.
+---------------------------------------------------------------------------------------------------
 Version: 0.9.0
 Date: 14.09.2024
   Notes:
