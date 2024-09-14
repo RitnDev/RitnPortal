@@ -323,6 +323,21 @@ end
 -- Suppression de surface
 function RitnPortalSurface:delete()
 
+    -- supression les liaisons déjà établit avec la surface chez les autres  
+    for _,surface in pairs(self.data) do 
+        if table.isNotEmpty(surface.portals) then 
+            for _,portal in pairs(surface.portals) do 
+                if portal.destination.surface == self.name then 
+                    local rPortal = self:getPortal(portal.id, portal.surface_name)
+                    rPortal:removeLink()
+                    break
+                end
+            end
+        end
+    end
+    
+
+
     -- supprime les requêtes en cours en destination de cette surface
     local options = remote.call("RitnCoreGame", "get_options")
 
@@ -342,25 +357,35 @@ function RitnPortalSurface:delete()
     -- Suppression des données lié à la surface supprimée
     options = remote.call("RitnCoreGame", "get_options")
     
+    -- on supprime tous les portail linkable de cette surface
     if options.portal.linkable[self.name] ~= nil then 
         options.portal.linkable[self.name] = nil
     end
 
+    -- on supprime tous les liens établit depuis cette surface
     if options.portal.linked[self.name] ~= nil then 
         options.portal.linked[self.name] = nil
     end
 
-    
+    -- On supprime toutes les requetes de cette surface
     if options.portal.requests[self.name] ~= nil then 
-        
         options.portal.requests[self.name] = nil
     end
     
     -- on supprime les requete en cours vers cette surface chez les autres
     for _, request in pairs(options.portal.requests) do 
+        
+        -- supression des requetes sortantes
         local position = table.indexOf(request.output, self.name)
         if position >= 0 then 
             table.remove(request.output, position)
+            position = -1
+        end
+
+        -- suppresion des requetes entrante
+        position = table.indexOf(request.input, self.name)
+        if position >= 0 then 
+            table.remove(request.input, position)
         end
     end
 

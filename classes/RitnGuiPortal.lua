@@ -552,13 +552,16 @@ function RitnGuiPortal:action_unlink()
 
     -- Suppression du lien sur le portail d'origine
     rPortal:removeLink(self.player)
+    
+    if destination.id_portal > 0 then
+        if util.type(rSurface) == "RitnPortalSurface" then
+            log("rSurface is not nil !")  
+            -- on récupère le portail sur la surface de destination
+            local rPortalDest = rSurface:getPortal(destination.id_portal, destination.surface_name)
 
-    if destination.id_portal > 0 then 
-        -- on récupère le portail sur la surface de destination
-        local rPortalDest = rSurface:getPortal(destination.id_portal, destination.surface_name)
-
-        -- suppression du lien sur le portail de destination
-        rPortalDest:removeLink(self.player)
+            -- suppression du lien sur le portail de destination
+            rPortalDest:removeLink(self.player)
+        end
     end
 
     -- fermeture du gui_portal
