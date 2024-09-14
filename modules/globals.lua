@@ -42,6 +42,12 @@ local portal_interface = {
             RitnGuiPortal(event):action_link()
         elseif action == ritnlib.defines.portal.gui_actions.portal.button_unlink then 
             RitnGuiPortal(event):action_unlink()
+        elseif action == ritnlib.defines.portal.gui_actions.portal.button_delete then 
+            RitnGuiPortal(event):action_delete()
+        elseif action == ritnlib.defines.portal.gui_actions.portal.button_back then 
+            RitnGuiPortal(event):action_back()
+        elseif action == ritnlib.defines.portal.gui_actions.portal.button_valid then 
+            RitnGuiPortal(event):action_valid()
         end
     end,
 

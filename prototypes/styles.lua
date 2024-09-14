@@ -51,3 +51,18 @@ RitnSprite:extend(
 	ritnlib.defines.portal.graphics.gui.button_unrequest,
 	64	-- image size 64x64
 )
+RitnSprite:extend(
+	ritnlib.defines.portal.names.sprite.button_delete,
+	ritnlib.defines.portal.graphics.gui.button_delete,
+	64	-- image size 64x64
+)
+RitnSprite:extend(
+	ritnlib.defines.portal.names.sprite.button_back,
+	ritnlib.defines.portal.graphics.gui.button_back,
+	64	-- image size 64x64
+)
+RitnSprite:extend(
+	ritnlib.defines.portal.names.sprite.button_valid,
+	ritnlib.defines.portal.graphics.gui.button_valid,
+	64	-- image size 64x64
+)

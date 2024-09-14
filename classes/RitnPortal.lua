@@ -40,6 +40,20 @@ end
 
 
 
+--Retourne le nom de la surface où se trouve le portail
+function RitnPortalPortal:getSurfaceName()
+    return self.surface.name
+end
+
+
+
+--Retourne le nom de la force qui a créé ce portail
+function RitnPortalPortal:getForceName()
+    return self.force.name
+end
+
+
+
 -- Vérification de la présence de l'entité portail
 function RitnPortalPortal:exist()
     if self.data == nil then return false end
@@ -52,7 +66,7 @@ function RitnPortalPortal:remove()
     local requester = self.data.request
     local id_portal = self:getDestinationIdPortal()
     local destination = self:getDestination()
-  
+
     -- suppression du tag gps
     self:deleteTag()
     -- suppression dans des données
@@ -322,7 +336,7 @@ function RitnPortalPortal:checkBeforeAddLink(requester, requestType)
     -- vérification que le portail n'est pas déjà relié
     local checkLink = not self:isLinked()
     log('checkBeforeAddLink -> checkLink: ' .. tostring(checkLink))
-       
+
     -- vérification que le portail n'a pas fait une autre demande depuis.
     local checkRequest = util.ifElse(requester == nil, true, self:isRequester(requester))
     log('checkBeforeAddLink -> checkRequest: ' .. tostring(checkRequest))
@@ -382,11 +396,14 @@ function RitnPortalPortal:removeLink(pLuaPlayer)
 end
 
 
-function RitnPortalPortal:teleport(LuaPlayer) 
+function RitnPortalPortal:teleport(LuaPlayer, force_teleport) 
+    local teleport_forced = false
+    if util.type(force_teleport) == 'boolean' then teleport_forced = force_teleport end
+
     if util.type(LuaPlayer) == 'LuaPlayer' then
-        
-        if self:playerIsDriver(LuaPlayer) and self:isLinked() then 
-            
+        -- le LuaPlayer est conducteur du portail et le portail est lié OU on force la téléportation 
+        -- quelques soit l'endroit où se trouve le joueur (via : teleport_forced)
+        if ( self:playerIsDriver(LuaPlayer) and self:isLinked() ) or teleport_forced then 
             local destination = self:getDestination()
             local rPortalDestination = self:getSurface():getPortal(self:getDestinationIdPortal(), destination)
             

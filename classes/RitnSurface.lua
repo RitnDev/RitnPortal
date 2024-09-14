@@ -116,7 +116,7 @@ function RitnPortalSurface:removeLinkedSurface(surface_linked, output)
     end
 
     log("> "..self.object_name..":removeLinkedSurface( " .. tostring(linked_output) .. ' --X--> ' .. tostring(linked_input) .." )")
-   
+
     -- récupération des options
     local options = remote.call("RitnCoreGame", "get_options")
 
@@ -203,6 +203,8 @@ function RitnPortalSurface:createPortal(rEvent)
         raise_built = true,
         create_build_effect_smoke = true
     })
+    LuaEntity.minable = false
+    LuaEntity.destructible = false
     local id_portal = LuaEntity.unit_number
     
 
@@ -282,9 +284,9 @@ end
 
 
 -- Suppression du portail
-function RitnPortalSurface:removePortal(rEvent)
+function RitnPortalSurface:removePortal(rPortal, LuaPlayer)
 
-    local rPortal = RitnPortalPortal(rEvent.entity)
+    --local rPortal = RitnPortalPortal(rEvent.entity)
     if util.type(rPortal) ~= "RitnPortalPortal" then return end 
     log("> "..self.object_name..":removePortal()")
 
@@ -306,10 +308,10 @@ function RitnPortalSurface:removePortal(rEvent)
         local rPortalDest = self:getPortal(id_portal, destination)
 
         -- suppression de la liaison en cours (coté destination)
-        rPortalDest:removeLink(self.surface.name, rEvent.player)
+        rPortalDest:removeLink(self.surface.name, LuaPlayer)
+    else
+        self:removeLinkablePortal()
     end
 
-    -- TODO : gérer le cas où l'une des 2 joueurs propriétaire est mort
-     
     return self, id_portal, destination
 end

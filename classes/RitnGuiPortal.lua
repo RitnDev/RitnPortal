@@ -26,6 +26,9 @@ RitnGuiPortal = ritnlib.classFactory.newclass(RitnLibGui, function(self, event)
             [ritnlib.defines.portal.gui_actions.portal.button_unrequest] = true,
             [ritnlib.defines.portal.gui_actions.portal.button_link] = true,
             [ritnlib.defines.portal.gui_actions.portal.button_unlink] = true,
+            [ritnlib.defines.portal.gui_actions.portal.button_delete] = true,
+            [ritnlib.defines.portal.gui_actions.portal.button_back] = true,
+            [ritnlib.defines.portal.gui_actions.portal.button_valid] = true,
         }
     }    
     --------------------------------------------------
@@ -77,7 +80,7 @@ function RitnGuiPortal:create(...)
         -- On affiche le bouton d'annulation de liaison
         content["button-unlink"].visible = true
         content["button-unlink"].tooltip = {'tooltip.button-unlink', string.defaultValue(rPortal.data.destination.surface)}
-  
+
         -- Le joueur est passagé du Portail (il doit sortir)
         if self.driving and isPassenger then 
             -- on affiche un message qui l'invite à sortir
@@ -99,38 +102,50 @@ function RitnGuiPortal:create(...)
     content["header"].drag_target = content["main"]
     content["title"].drag_target = content["main"]
     content["dragspace"].drag_target = content["main"]
+    content["line"].visible = true
 
     ----
     
-    RitnLibStyle(content["frame-top"]):topPadding(4):rightPadding(8):leftPadding(8)
+    local spriteButtonSize = 38
+
+    RitnLibStyle(content["frame-top"]):topPadding(4):horizontalPadding(8)
     RitnLibStyle(content["header"]):verticalStretch(false)
     RitnLibStyle(content["dragspace"]):stretchable():height(24):rightMargin(8)
     RitnLibStyle(content["flow-namer"]):padding(4)
     RitnLibStyle(content["namer"]):font(font.bold16):width(275)
     RitnLibStyle(content["submain"]):padding(4):margin(4):stretchable()
+    RitnLibStyle(content["submain_confirm"]):padding(4):horizontalPadding(8):margin(4):stretchable()
     RitnLibStyle(content["enter"]):padding(4)
-    RitnLibStyle(content["flow-empty_surfaces"]):padding(4):height(40)
-    RitnLibStyle(content["button-empty_surfaces"]):stretchable():fontColor("white", true, true)
-    RitnLibStyle(content["flow-surfaces"]):padding(4):stretchable():bottomPadding(0)
-    RitnLibStyle(content["list-surfaces"]):horizontalStretch():maxHeight(500)
+    RitnLibStyle(content["flow-empty_surfaces"]):padding(4)
+    RitnLibStyle(content["button-empty_surfaces"]):stretchable():fontColor("white", true, true):height(38)
+    RitnLibStyle(content["flow-surfaces"]):padding(4):stretchable()
+    RitnLibStyle(content["list-surfaces"]):horizontalStretch():maxHeight(500):bottomMargin(4)
     RitnLibStyle(content["empty-empty"]):stretchable()
-    RitnLibStyle(content["flow-dialog_surfaces"]):padding(4)
-    RitnLibStyle(content["button-request"]):align("right"):spriteButton()
-    RitnLibStyle(content["button-link"]):align("right"):spriteButton()
-    RitnLibStyle(content["button-unlink"]):spriteButton()
-    RitnLibStyle(content["button-unrequest"]):spriteButton()
+    RitnLibStyle(content["empty-empty_confirm"]):stretchable()
+    RitnLibStyle(content["frame-dialog_surfaces"]):margin(4):verticalPadding(6):horizontalPadding(8)
+    RitnLibStyle(content["frame-dialog_confirm"]):margin(4):verticalPadding(6):horizontalPadding(8)
+    RitnLibStyle(content["button-request"]):align("right"):spriteButton(spriteButtonSize)
+    RitnLibStyle(content["button-link"]):align("right"):spriteButton(spriteButtonSize)
+    RitnLibStyle(content["button-unlink"]):align("right"):spriteButton(spriteButtonSize)
+    RitnLibStyle(content["button-unrequest"]):align("right"):spriteButton(spriteButtonSize)
+    RitnLibStyle(content["button-delete"]):align("left"):spriteButton(spriteButtonSize)
+    RitnLibStyle(content["button-back"]):align("left"):spriteButton(spriteButtonSize)
+    RitnLibStyle(content["button-valid"]):align("right"):spriteButton(spriteButtonSize)
+    RitnLibStyle(content["label-confirm"]):font(font.defaut14):width(275):height(82):align()
 
     local listSurfacesNotEmpty = false
     
     -- Votre portail est en cours de demande de liaison avec une destination
     if isRequester == true then 
         content["flow-surfaces"].visible = false
+        content["button-delete"].visible = false
         content["flow-empty_surfaces"].visible = false
+        content["line"].visible = false
 
         content["namer"].caption = rPortal:getRequest()
         content["button-unrequest"].visible = true
         content["button-unrequest"].tooltip = {'tooltip.button-unrequest', string.defaultValue(rPortal.data.request)}
-  
+
     else -- Votre portail n'a aucune demande en cours
 
         --Récupération de la liste des demandes de liaison
@@ -171,6 +186,8 @@ function RitnGuiPortal:create(...)
         -- si la liste n'est pas vide on selectionne l'index 'selecter_index' (par defaut le premier)
         if listSurfacesNotEmpty == true and isLinked == false then 
             content["flow-surfaces"].visible = true
+            content["button-delete"].visible = true
+            content["line"].visible = false
             self:selectListSurfacesChange(content["list-surfaces"], selecter_index)
         end
 
@@ -326,6 +343,36 @@ function RitnGuiPortal:indexOfRequestSeparator(list, selecter_index)
 
     -- Onretourne le resultat avec le select_item en premier element
     return item_select, string.find(item_select, self.REQUEST_SEPARATOR)
+end
+
+
+
+
+-- On renvoie les joueurs se trouvant sur la surface actuelle pour les renvoyer chez-eux
+function RitnGuiPortal:sendPlayersHome(rPortal, rSurface, id_portal_destination, surface_name_destination)
+    
+    -- on récupère le portail sur la surface de destination
+    local rPortalDest = rSurface:getPortal(id_portal_destination, surface_name_destination)
+
+    -- téléportation les joueurs ne se trouvant sur la map pour les renvoyer chez-eux
+    for _, LuaPlayer in pairs(game.players) do 
+        local rPlayer = RitnCorePlayer(LuaPlayer) 
+
+        -- le joueur n'est pas sur sa surface d'origine
+        -- le joueur est sur la surface actuelle
+        -- la surface d'origine est la destination du portail en suppression
+        if (rPlayer:isOrigine() == false) and 
+            (rPlayer.surface.name == self.surface.name) and
+            (rPlayer:getOrigine() == surface_name_destination) then 
+            
+            -- on annule le temps de respawn pour pouvoir le tp direct s'il est mort
+            rPlayer.player.ticks_to_respawn = nil
+
+            -- on téléporte le joueur dans son portail (en passager)
+            rPortal:teleport(LuaPlayer, true)
+        end
+    end
+
 end
 
 
@@ -498,6 +545,9 @@ function RitnGuiPortal:action_unlink()
     }
 
     log('destination = { id_portal: '.. tostring(destination.id_portal) .. ', surface_name: ' .. tostring(destination.surface_name) .. ' }')
+    
+    -- On renvoie les joueurs se trouvant sur la surface actuelle pour les renvoyer chez-eux
+    self:sendPlayersHome(rPortal, rSurface, destination.id_portal, destination.surface_name) 
 
     -- Suppression du lien sur le portail d'origine
     rPortal:removeLink(self.player)
@@ -505,11 +555,77 @@ function RitnGuiPortal:action_unlink()
     if destination.id_portal > 0 then 
         -- on récupère le portail sur la surface de destination
         local rPortalDest = rSurface:getPortal(destination.id_portal, destination.surface_name)
-        
+
         -- suppression du lien sur le portail de destination
         rPortalDest:removeLink(self.player)
-
     end
+
+    -- fermeture du gui_portal
+    self:action_close()
+end
+
+
+-- Action de suppression du portail de la surface
+function RitnGuiPortal:action_delete() 
+    log('> '..self.object_name..':action_delete()')
+
+    local submain = self:getElement("frame", "submain")
+    local submain_confirm = self:getElement("frame", "submain_confirm")
+    local dialog_surfaces = self:getElement("frame", "dialog_surfaces")
+    local dialog_confirm = self:getElement("frame", "dialog_confirm")
+
+    submain.visible = false
+    dialog_surfaces.visible = false
+
+    submain_confirm.visible = true
+    dialog_confirm.visible = true
+end
+
+
+-- Action d'annulation de suppression du portail
+function RitnGuiPortal:action_back() 
+    log('> '..self.object_name..':action_back()')
+
+    local submain = self:getElement("frame", "submain")
+    local submain_confirm = self:getElement("frame", "submain_confirm")
+    local dialog_surfaces = self:getElement("frame", "dialog_surfaces")
+    local dialog_confirm = self:getElement("frame", "dialog_confirm")
+
+    submain_confirm.visible = false
+    dialog_confirm.visible = false
+
+    submain.visible = true
+    dialog_surfaces.visible = true
+end
+
+
+
+-- Action d'annulation de suppression du portail
+function RitnGuiPortal:action_valid() 
+    log('> '..self.object_name..':action_valid()')
+    
+    local rPortal = self:getPortal()
+    local rSurface = self:getSurface()
+    local destination = {
+        id_portal = rPortal:getDestinationIdPortal(),
+        surface_name = rPortal:getDestination()
+    }
+
+    -- On renvoie les joueurs se trouvant sur la surface actuelle pour les renvoyer chez-eux
+    self:sendPlayersHome(rPortal, rSurface, destination.id_portal, destination.surface_name) 
+
+    -- suppression du portail de la surface (dans les datas)
+    local _rSurface, id_portal, destination = rSurface:removePortal(rPortal, self.player)
+    local rPortalDestination = rSurface:getPortal(id_portal, destination)
+
+    -- on récupère la listes des joueurs et on boucle sur chacun
+    local players = remote.call('RitnCoreGame', 'get_players')
+    for _,player in pairs(players) do 
+        remote.call('RitnPortal', 'gui_portal_close_filter', player.index, rPortal.id)
+        remote.call('RitnPortal', 'gui_portal_close_filter', player.index, id_portal)
+    end
+
+    rPortal:destroy()
 
     -- fermeture du gui_portal
     self:action_close()

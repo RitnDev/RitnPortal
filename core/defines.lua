@@ -44,8 +44,11 @@ defines.graphics = {
         button_link = gui .. "icon-link-white.png",
         button_unlink = gui .. "icon-unlink-white.png",
         inbound_link = gui .. "inbound-link-white.png",
+        button_delete = gui .. "delete-forever-red.png",
         button_ask_link = gui .. "ask-link-white.png",
-        button_unrequest = gui .. "ask-cancel-white.png"
+        button_unrequest = gui .. "ask-cancel-white.png",
+        button_back = gui .. "cancel-white.png",
+        button_valid = gui .. "check-white.png",
     },
     entity = {
         portal = graphics .. "entity/ritn-portal/ritn-portal.png",
@@ -108,6 +111,9 @@ defines.gui_actions = {
         button_link = "button-link",
         button_request = "button-request",
         button_unrequest = "button-unrequest",
+        button_delete = "button-delete",
+        button_back = "button-back",
+        button_valid = "button-valid",
     },
 }
 
@@ -163,6 +169,9 @@ defines.names = {
         button_link = "sprite_button_link",
         button_unlink = "sprite_button_unlink",
         button_unrequest = "sprite_button_unrequest",
+        button_delete = "sprite_button_button_delete",
+        button_back = "sprite_button_button_back",
+        button_valid = "sprite_button_button_valid",
     },
     customInput = {
         frame_close1 = defines.prefix.name .. "close-frame-portal1",
@@ -184,14 +193,11 @@ defines.names.caption = {
         label_enter = {"frame-portal.label-enter"},
         label_passenger = {"frame-portal.label-passenger"},
         label_list_destinations = {"frame-portal.label-list-destinations"},
-        button_teleport = {"frame-portal.teleport-button"},
-        button_empty = {"frame-portal.button-empty"},
-        button_request = {"frame-portal.button-request"},
         not_link = {"frame-portal.not_link"},
         link = "frame-portal.link",
         request = "frame-portal.request",
         dest_not_find = {"frame-portal.dest-not-find"},
-        linkable_not_find = {"frame-portal.linkable-not-find"},
+        confirm_delete = {"frame-portal.confirm-delete"},
     }
 
 }

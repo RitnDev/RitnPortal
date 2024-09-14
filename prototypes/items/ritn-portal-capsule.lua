@@ -37,11 +37,11 @@ data:extend({
         enabled = false,
         ingredients =
         {
-            {type="item", name="radar", amount=1},
-            {type="item", name="steel-plate", amount=2},
-            {type="item", name="red-wire", amount=2},
-            {type="item", name="green-wire", amount=4},
-            {type="item", name="arithmetic-combinator", amount=4},
+            {type="item", name="radar", amount=5},
+            {type="item", name="steel-plate", amount=4},
+            {type="item", name="red-wire", amount=4},
+            {type="item", name="green-wire", amount=2},
+            {type="item", name="arithmetic-combinator", amount=10},
             {type="item", name="power-switch", amount=2}
         },
         result = ritnlib.defines.portal.names.item.capsule,

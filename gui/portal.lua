@@ -7,36 +7,45 @@ local element = {
         header = RitnLibGuiElement(gui_name,"flow","header"):horizontal():get(),
         namer = RitnLibGuiElement(gui_name,"flow","namer"):horizontal():get(),
         surfaces = RitnLibGuiElement(gui_name,"flow","surfaces"):vertical():visible(false):get(),
-        dialog_surfaces = RitnLibGuiElement(gui_name,"flow","dialog_surfaces"):horizontal():get(),
         empty_surfaces = RitnLibGuiElement(gui_name,"flow","empty_surfaces"):horizontal():visible(false):get(),
     },
     frame = {
         main = RitnLibGuiElement(gui_name,"frame","main"):vertical():style("frame-ritngui"):get(),
         top = RitnLibGuiElement(gui_name,"frame","top"):style("frame-bg-ritngui"):get(),
         submain = RitnLibGuiElement(gui_name,"frame","submain"):vertical():style("inside_shallow_frame"):get(),
+        submain_confirm = RitnLibGuiElement(gui_name,"frame","submain_confirm"):vertical():style("inside_shallow_frame"):visible(false):get(),
+        dialog_surfaces = RitnLibGuiElement(gui_name,"frame","dialog_surfaces"):horizontal():style("inside_shallow_frame"):get(),
+        dialog_confirm = RitnLibGuiElement(gui_name,"frame","dialog_confirm"):horizontal():style("inside_shallow_frame"):visible(false):get(), -- 
     },
     label = {
         title = RitnLibGuiElement(gui_name, "label", "title"):caption(captions.titre):style("frame_title"):get(),
         info = RitnLibGuiElement(gui_name,"label","info"):visible(false):get(),
         namer = RitnLibGuiElement(gui_name,"label","namer"):get(),
+        confirm = RitnLibGuiElement(gui_name,"label","confirm"):caption(captions.confirm_delete):get(),
         enter = RitnLibGuiElement(gui_name,"label","enter"):caption(captions.label_passenger):get(),
         list_dest = RitnLibGuiElement(gui_name,"label","list_dest"):caption(captions.label_list_destinations):get(),
     },
     button = {
         close = RitnLibGuiElement(gui_name,"sprite-button","close"):spritePath('utility/close_white'):style("frame_action_button"):mouseButtonFilter():get(),
-        valid = RitnLibGuiElement(gui_name, "sprite-button", "valid"):spritePath(defines.sprite.button_valid):style("frame_button"):get(),
         link = RitnLibGuiElement(gui_name,"sprite-button","link"):spritePath(defines.sprite.button_link):style("frame_action_button"):visible(false):get(),
         unlink = RitnLibGuiElement(gui_name,"sprite-button","unlink"):spritePath(defines.sprite.button_unlink):style("frame_action_button"):visible(false):get(),
-        request = RitnLibGuiElement(gui_name,"sprite-button","request"):spritePath(defines.sprite.button_ask_link):style("frame_action_button"):get(),
+        request = RitnLibGuiElement(gui_name,"sprite-button","request"):spritePath(defines.sprite.button_ask_link):style("frame_action_button"):visible(false):get(),
         unrequest = RitnLibGuiElement(gui_name,"sprite-button","unrequest"):spritePath(defines.sprite.button_unrequest):style("frame_action_button"):visible(false):get(),
         empty_surfaces = RitnLibGuiElement(gui_name, "button", "empty_surfaces"):style(ritnlib.defines.portal.names.styles.ritnFrameButton):caption(captions.dest_not_find):enabled(false):get(),
+        delete = RitnLibGuiElement(gui_name,"sprite-button","delete"):spritePath(defines.sprite.button_delete):style("frame_action_button"):tooltip({"tooltip.button-delete"}):get(),
+        back = RitnLibGuiElement(gui_name,"sprite-button","back"):spritePath(defines.sprite.button_back):style("frame_action_button"):get(),
+        valid = RitnLibGuiElement(gui_name,"sprite-button","valid"):spritePath(defines.sprite.button_valid):style("frame_action_button"):get(),
     },
-    line = RitnLibGuiElement(gui_name,"line","line"):horizontal():get(),
+    line = {
+        line = RitnLibGuiElement(gui_name,"line","line"):horizontal():get(),
+        line_dialog = RitnLibGuiElement(gui_name,"line","line_dialog"):horizontal():get(),
+    },
     list = {
         surfaces = RitnLibGuiElement(gui_name,"list-box","surfaces"):get(),
     },
     empty = {
         empty = RitnLibGuiElement(gui_name,"empty-widget","empty"):get(),
+        empty_confirm = RitnLibGuiElement(gui_name,"empty-widget","empty_confirm"):get(),
         dragspace = RitnLibGuiElement(gui_name,"empty-widget","dragspace"):style("draggable_space_header"):get(),
     }    
 }
@@ -64,12 +73,6 @@ local content = {
             "frame-submain",
             "flow-dialog",
         },
-        dialog_surfaces = {
-            "frame-main",
-            "frame-submain",
-            "flow-surfaces",
-            "flow-dialog_surfaces",
-        },
         empty_surfaces = {
             "frame-main",
             "frame-submain",
@@ -85,6 +88,18 @@ local content = {
         submain = {
             "frame-main",
             "frame-submain",
+        },
+        submain_confirm = {
+            "frame-main",
+            "frame-submain_confirm",
+        },
+        dialog_surfaces = {
+            "frame-main",
+            "frame-dialog_surfaces",
+        },
+        dialog_confirm = {
+            "frame-main",
+            "frame-dialog_confirm",
         },
     },
     label = {
@@ -104,6 +119,11 @@ local content = {
             "frame-submain",
             "flow-namer",
             "label-namer",
+        },
+        confirm = {
+            "frame-main",
+            "frame-submain_confirm",
+            "label-confirm",
         },
         enter = {
             "frame-main",
@@ -132,9 +152,7 @@ local content = {
         },
         link = {
             "frame-main",
-            "frame-submain",
-            "flow-surfaces",
-            "flow-dialog_surfaces",
+            "frame-dialog_surfaces",
             "button-link",
         },
         unlink = {
@@ -145,16 +163,18 @@ local content = {
         },
         request = {
             "frame-main",
-            "frame-submain",
-            "flow-surfaces",
-            "flow-dialog_surfaces",
+            "frame-dialog_surfaces",
             "button-request",
         },
         unrequest = {
             "frame-main",
-            "frame-submain",
-            "flow-namer",
+            "frame-dialog_surfaces",
             "button-unrequest",
+        },
+        delete = {
+            "frame-main",
+            "frame-dialog_surfaces",
+            "button-delete",
         },
     },
     list = {
@@ -168,9 +188,13 @@ local content = {
     empty = {
         empty = {
             "frame-main",
-            "frame-submain",
-            "flow-surfaces",
-            "flow-dialog_surfaces",
+            "frame-dialog_surfaces",
+            "empty-empty",
+        },
+        empty_confirm = {
+            "frame-main",
+            "frame-dialog_confirm",
+            "empty-empty_confirm",
         },
         dragspace = {
             "frame-main",
@@ -217,6 +241,18 @@ local elements = {
                     gui = element.button.close
                 },
 
+        -- submain_confirm
+        {
+            parent = "main",
+            name = "submain_confirm",
+            gui = element.frame.submain_confirm
+        },
+            {
+                parent = "submain_confirm",
+                name = "label-confirm",
+                gui = element.label.confirm
+            },
+
         -- submain
         {
             parent = "main",
@@ -238,21 +274,11 @@ local elements = {
                     name = "namer",
                     gui = element.label.namer
                 },
-                {
-                    parent = "flow-namer",
-                    name = "button-unrequest",
-                    gui = element.button.unrequest
-                },
-                {
-                    parent = "flow-namer",
-                    name = "button-unlink",
-                    gui = element.button.unlink
-                },
 
             {
                 parent = "submain",
                 name = "line",
-                gui = element.line
+                gui = element.line.line
             },
             {
                 parent = "submain",
@@ -287,26 +313,61 @@ local elements = {
                     name = "list-surfaces",
                     gui = element.list.surfaces
                 },
+            {
+                parent = "main",
+                name = "frame-dialog_surfaces",
+                gui = element.frame.dialog_surfaces
+            },
                 {
-                    parent = "flow-surfaces",
-                    name = "flow-dialog_surfaces",
-                    gui = element.flow.dialog_surfaces
+                    parent = "frame-dialog_surfaces",
+                    name = "button-delete",
+                    gui = element.button.delete
                 },
-                    {
-                        parent = "flow-dialog_surfaces",
-                        name = "empty-empty",
-                        gui = element.empty.empty
-                    },
-                    {
-                        parent = "flow-dialog_surfaces",
-                        name = "button-link",
-                        gui = element.button.link
-                    },
-                    {
-                        parent = "flow-dialog_surfaces",
-                        name = "button-request",
-                        gui = element.button.request
-                    },
+                {
+                    parent = "frame-dialog_surfaces",
+                    name = "empty-empty",
+                    gui = element.empty.empty
+                },
+                {
+                    parent = "frame-dialog_surfaces",
+                    name = "button-link",
+                    gui = element.button.link
+                },
+                {
+                    parent = "frame-dialog_surfaces",
+                    name = "button-request",
+                    gui = element.button.request
+                },
+                {
+                    parent = "frame-dialog_surfaces",
+                    name = "button-unrequest",
+                    gui = element.button.unrequest
+                },
+                {
+                    parent = "frame-dialog_surfaces",
+                    name = "button-unlink",
+                    gui = element.button.unlink
+                },
+            {
+                parent = "main",
+                name = "frame-dialog_confirm",
+                gui = element.frame.dialog_confirm
+            },
+                {
+                    parent = "frame-dialog_confirm",
+                    name = "button-back",
+                    gui = element.button.back
+                },
+                {
+                    parent = "frame-dialog_confirm",
+                    name = "empty-empty_confirm",
+                    gui = element.empty.empty_confirm
+                },
+                {
+                    parent = "frame-dialog_confirm",
+                    name = "button-valid",
+                    gui = element.button.valid
+                },
 }
 
 -----------------------------------------
