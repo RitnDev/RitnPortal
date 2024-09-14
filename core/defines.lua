@@ -31,6 +31,7 @@ defines.modules = {
     ----
     player = dir .. ".modules.player",
     portal = dir .. ".modules.portal",
+    surface = dir .. ".modules.surface",
     ----
 }
 

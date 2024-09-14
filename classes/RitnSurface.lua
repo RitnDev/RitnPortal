@@ -317,3 +317,52 @@ function RitnPortalSurface:removePortal(rPortal, LuaPlayer)
 
     return self, id_portal, destination
 end
+
+
+
+-- Suppression de surface
+function RitnPortalSurface:delete()
+
+    -- supprime les requêtes en cours en destination de cette surface
+    local options = remote.call("RitnCoreGame", "get_options")
+
+    local requests_input = {}
+    if table.isNotEmpty(options.portal.requests[self.name].input) then 
+        requests_input = options.portal.requests[self.name].input
+    end
+    
+    if table.isNotEmpty(requests_input) then 
+        for _,input in pairs(requests_input) do 
+            local rPortalDest = self:getPortal(input.id, input.surface_name)
+            rPortalDest:removeRequest()
+        end
+    end
+
+
+    -- Suppression des données lié à la surface supprimée
+    options = remote.call("RitnCoreGame", "get_options")
+    
+    if options.portal.linkable[self.name] ~= nil then 
+        options.portal.linkable[self.name] = nil
+    end
+
+    if options.portal.linked[self.name] ~= nil then 
+        options.portal.linked[self.name] = nil
+    end
+
+    
+    if options.portal.requests[self.name] ~= nil then 
+        
+        options.portal.requests[self.name] = nil
+    end
+    
+    -- on supprime les requete en cours vers cette surface chez les autres
+    for _, request in pairs(options.portal.requests) do 
+        local position = table.indexOf(request.output, self.name)
+        if position >= 0 then 
+            table.remove(request.output, position)
+        end
+    end
+
+    remote.call("RitnCoreGame", "set_options", options)
+end

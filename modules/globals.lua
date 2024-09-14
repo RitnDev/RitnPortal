@@ -31,7 +31,7 @@ local portal_interface = {
         elseif action == ritnlib.defines.portal.gui_actions.portal.list_select_change then 
             local rGuiPortal = RitnGuiPortal(event)
             local list = rGuiPortal.element
-            rGuiPortal:selectListSurfacesChange(list)
+            rGuiPortal:selectListSurfacesChange(list, list.selected_index)
         elseif action == ritnlib.defines.portal.gui_actions.portal.button_close then 
             RitnGuiPortal(event):action_close()
         elseif action == ritnlib.defines.portal.gui_actions.portal.button_request then 
