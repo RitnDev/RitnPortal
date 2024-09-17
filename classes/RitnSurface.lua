@@ -339,18 +339,6 @@ function RitnPortalSurface:delete()
     -- supprime les requêtes en cours en destination de cette surface
     local options = remote.call("RitnCoreGame", "get_options")
 
-
-    -- on supprime les requete en cours vers cette surface chez les autres
-    for _, request in pairs(options.portal.requests) do 
-        -- suppresion des requetes entrante
-        if request.input[self.name] ~= nil then 
-            local input = request.input[self.name]
-            local rPortalDest = self:getPortal(input.id, input.surface_name)
-            rPortalDest:removeRequest()
-        end
-    end
-
-
     local requests_input = {}
     if table.isNotEmpty(options.portal.requests[self.name].input) then 
         requests_input = options.portal.requests[self.name].input
@@ -387,6 +375,11 @@ function RitnPortalSurface:delete()
             table.remove(request.output, position)
             position = -1
         end
+
+        if request.input[self.name] ~= nil then 
+            request.input[self.name] = nil
+        end
+
     end
 
     remote.call("RitnCoreGame", "set_options", options)
