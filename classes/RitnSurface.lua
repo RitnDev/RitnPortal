@@ -383,9 +383,10 @@ function RitnPortalSurface:delete()
         end
 
         -- suppresion des requetes entrante
-        position = table.indexOf(request.input, self.name)
-        if position >= 0 then 
-            table.remove(request.input, position)
+        if request.input[self.name] ~= nil then 
+            local input = request.input[self.name]
+            local rPortalDest = self:getPortal(input.id, input.surface_name)
+            rPortalDest:removeRequest()
         end
     end
 

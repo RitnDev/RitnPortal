@@ -1,9 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.9.4
+Date: 17.09.2024
+  Bugfixes:
+    - fix : Suppression des requetes entrantes venant de la surface en suppression.
+---------------------------------------------------------------------------------------------------
 Version: 0.9.3
 Date: 15.09.2024
   Changes:
     - change : Format changelog.txt
-
   Bugfixes :
     - fix : Suppression des requetes et lien en cours quand une surface est supprimée.
 ---------------------------------------------------------------------------------------------------
