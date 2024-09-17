@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.0
+Date: 17.09.2024
+  Info:
+    - Sortie officielle du mod.
+  Bugfixes:
+    - fix : Suppression des requetes entrantes venant de la surface en suppression (final).
+---------------------------------------------------------------------------------------------------
 Version: 0.9.5
 Date: 17.09.2024
   Bugfixes:
