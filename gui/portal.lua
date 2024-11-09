@@ -26,7 +26,7 @@ local element = {
         list_dest = RitnLibGuiElement(gui_name,"label","list_dest"):caption(captions.label_list_destinations):get(),
     },
     button = {
-        close = RitnLibGuiElement(gui_name,"sprite-button","close"):spritePath('utility/close_white'):style("frame_action_button"):mouseButtonFilter():get(),
+        close = RitnLibGuiElement(gui_name,"sprite-button","close"):spritePath('utility/close'):style("frame_action_button"):mouseButtonFilter():get(),
         link = RitnLibGuiElement(gui_name,"sprite-button","link"):spritePath(defines.sprite.button_link):style("frame_action_button"):visible(false):get(),
         unlink = RitnLibGuiElement(gui_name,"sprite-button","unlink"):spritePath(defines.sprite.button_unlink):style("frame_action_button"):visible(false):get(),
         request = RitnLibGuiElement(gui_name,"sprite-button","request"):spritePath(defines.sprite.button_ask_link):style("frame_action_button"):visible(false):get(),

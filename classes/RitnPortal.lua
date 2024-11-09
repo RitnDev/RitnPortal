@@ -89,7 +89,13 @@ end
 function RitnPortalPortal:setRendering(value) 
     if self:exist() then
         if string.isNotEmptyString(value) then 
-            rendering.set_text(self.data.render_id, value)
+            -- set rendering
+            local LuaRenders = rendering.get_all_objects(ritnlib.defines.portal.name)
+            local index = table.index(LuaRenders, "id", self.data.render_id)
+            if index > 0 then
+                local LuaRender = LuaRenders[index]
+                LuaRender.text = value
+            end
         end
     end
 
@@ -299,7 +305,7 @@ function RitnPortalPortal:addRequest(destination)
 
     -- récupération de la liste des surfaces destinations
     local listSurfaces = self:getListSurfaces()   
-    log('liste des surfaces : ' .. tostring(game.table_to_json(listSurfaces)))
+    log('liste des surfaces : ' .. tostring(helpers.table_to_json(listSurfaces)))
 
     -- On vérifie que la destination est présent dans la liste des surfaces joignables
     local check = false
