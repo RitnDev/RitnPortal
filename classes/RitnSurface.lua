@@ -182,7 +182,7 @@ function RitnPortalSurface:createPortal(rEvent)
     -- check tile
     local LuaTile = self.surface.get_tile(position.x, position.y)
     if string.sub(LuaTile.name,1,string.len("water")) == "water" then return end 
-    if global.portal.tileNoPortal[LuaTile.name] then return end 
+    if storage.portal.tileNoPortal[LuaTile.name] then return end 
     log("> "..self.object_name..":createPortal()")
 
     local tabEntities = self.surface.find_entities_filtered({
@@ -209,12 +209,12 @@ function RitnPortalSurface:createPortal(rEvent)
     
 
     --create render text
-    local renderId = rendering.draw_text{
+    local LuaRender = rendering.draw_text{
         text=self.TOKEN_PORTAL_NOT_LINKED,
         surface=self.surface,
         target=LuaEntity,
         alignment = "center",
-        target_offset={0, -2.0},
+        target_offset={0.0, -2.0},
         color = colors.mediumpurple,
         scale_with_zoom = true,
         scale = 1.5
@@ -234,7 +234,7 @@ function RitnPortalSurface:createPortal(rEvent)
     self.data[self.name].portals[id_portal] = data_portal
     self.data[self.name].portals[id_portal].id = id_portal
     self.data[self.name].portals[id_portal].position = position
-    self.data[self.name].portals[id_portal].render_id = renderId
+    self.data[self.name].portals[id_portal].render_id = LuaRender.id
     self.data[self.name].portals[id_portal].tag_number = tag.tag_number
     self.data[self.name].portals[id_portal].destination = {
         id_portal = -1,

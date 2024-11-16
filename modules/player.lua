@@ -15,7 +15,7 @@ end
 
 
 local function on_player_used_capsule(e)
-    if global.portal.modules.player == false then return end
+    if storage.portal.modules.player == false then return end
     local rEvent = RitnCoreEvent(e)
     local rPlayer = rEvent:getPlayer()
     RitnPortalSurface(rPlayer.surface):createPortal(rEvent)
@@ -24,7 +24,7 @@ end
 
 
 local function on_player_cursor_stack_changed(e) 
-    if global.portal.modules.player == false then return end
+    if storage.portal.modules.player == false then return end
     local rPlayer = RitnCoreEvent(e):getPlayer()
 
     if rPlayer.player.cursor_stack.count == 0 then return end
@@ -52,7 +52,7 @@ end
 
 -- On rentre dans le portail t-elle un vehicule
 local function on_player_driving_changed_state(e) 
-    if global.portal.modules.player == false then return end
+    if storage.portal.modules.player == false then return end
     local rEvent = RitnCoreEvent(e)
     local rPlayer = rEvent:getPlayer()
     local LuaEntity = rEvent.entity 

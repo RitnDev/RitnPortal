@@ -20,10 +20,11 @@ data:extend({
                 sound = { filename = ritnlib.defines.portal.directory .. "/sounds/portal_open.ogg", volume = 0.5 },
                 ammo_type =
                 {
-                    category = "capsule",
-                    type = "direct",
-                }
-
+                    action = {
+                        type = "direct"
+                    },
+                },
+                ammo_category = "capsule"
             }
         },
     },
@@ -37,15 +38,17 @@ data:extend({
         enabled = false,
         ingredients =
         {
-            {type="item", name="radar", amount=5},
-            {type="item", name="steel-plate", amount=4},
-            {type="item", name="red-wire", amount=4},
-            {type="item", name="green-wire", amount=2},
-            {type="item", name="arithmetic-combinator", amount=10},
+            {type="item", name="radar", amount=1},
+            {type="item", name="steel-plate", amount=2},
+            {type="item", name="electronic-circuit", amount=2},
+            {type="item", name="copper-cable", amount=6},
+            {type="item", name="arithmetic-combinator", amount=4},
             {type="item", name="power-switch", amount=2}
         },
-        result = ritnlib.defines.portal.names.item.capsule,
-        result_count = 1
+        results = {
+            {type = "item", name = ritnlib.defines.portal.names.item.capsule, amount = 1}
+        },
+        result_is_always_fresh = true
     },
 
     {

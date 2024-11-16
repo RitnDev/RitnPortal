@@ -21,7 +21,15 @@ data:extend({
         max_health = 10000,
         inventory_size = 0,
         collision_box = {{-1.5, -1.5}, {1.5, 1.5}}, 
-        collision_mask = {"item-layer", "object-layer", "water-tile", "not-colliding-with-itself"},
+        collision_mask = {
+            layers = {
+                item = true,
+                object = true,
+                water_tile = true,
+
+            },
+            not_colliding_with_itself = true,
+        },
         selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
         vehicle_impact_sound =  { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
         opening_sound = { filename = ritnlib.defines.portal.sound.none, volume = 0.5 },

@@ -5,7 +5,7 @@
 
 -- Suppresion d'une surface
 local function on_pre_surface_deleted(e) 
-    if global.portal.modules.portal == false then return end
+    if storage.portal.modules.portal == false then return end
     local rEvent = RitnCoreEvent(e)
     RitnPortalSurface(rEvent.surface):delete()
 end

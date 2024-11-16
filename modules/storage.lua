@@ -1,8 +1,8 @@
 ---------------------------------------------------------------------------------------------
 -- GLOBALS
 ---------------------------------------------------------------------------------------------
-if global.portal == nil then
-    global.portal = { 
+if storage.portal == nil then
+    storage.portal = { 
         modules = {
             player = true,
             portal = true,
@@ -62,14 +62,14 @@ local portal_interface = {
 
     --disable modules
     ["disable.module.player"] = function()
-        global.portal.modules.player = false
+        storage.portal.modules.player = false
     end,
     ["disable.module.portal"] = function()
-        global.portal.modules.portal = false
+        storage.portal.modules.portal = false
     end,
 
     ["get_gui_portal"] = function()
-        return global.portal.gui.portal
+        return storage.portal.gui.portal
     end,
     -- create portal gui
     ["create_portal_gui"] = function(gui_start, elements) 
