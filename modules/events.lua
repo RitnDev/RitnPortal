@@ -1,6 +1,8 @@
 ---------------------------------------------------------------------------------------------
 -- EVENTS
 ---------------------------------------------------------------------------------------------  
+local gui_portal = require(ritnlib.defines.portal.gui.portal)
+---------------------------------------------------------------------------------------------
 local function on_init_mod(event)
     log('RitnPortal -> on_init !')
     ---------------------------------------------
@@ -42,6 +44,8 @@ local function on_init_mod(event)
 end
 
 local function on_configuration_changed()
+    -- mise à jour des données d'interfaces dans le storage
+    storage.portal.gui.portal = gui_portal
     log("on_configuration_changed()")
 end
 
