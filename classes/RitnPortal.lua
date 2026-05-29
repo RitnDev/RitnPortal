@@ -340,7 +340,7 @@ function RitnPortalPortal:addRequest(destination)
     -- On envoie un message sur la surface de destination
     pcall(function() 
         log("> " .. self.object_name .. ":addRequest(" .. tostring(destination) ..") -> send print")
-        game.surfaces[destination].print({'msg.new-request', self.surface.name}, colors.aqua)
+        game.get_surface(destination).print({'msg.new-request', self.surface.name}, colors.aqua)
         self.surface.print({'msg.send-request', destination}, colors.aqua)
     end)
 
@@ -396,7 +396,7 @@ function RitnPortalPortal:addLink(idPortalLink, surface, pLuaPlayer)
     -- On envoie un message sur la surface de destination
     pcall(function() 
         log("> " .. self.object_name .. ":addLink(" .. tostring(surface) ..") -> send print")
-        game.surfaces[surface].print({'msg.new-link', self.surface.name}, colors.aqua)
+        game.get_surface(surface).print({'msg.new-link', self.surface.name}, colors.aqua)
     end)
 
     return self:update()

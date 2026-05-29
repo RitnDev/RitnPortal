@@ -247,8 +247,8 @@ function RitnGuiPortal:getSurface()
     log('> '..self.object_name..':getSurface()')
     ----
     local surface_name = self:getSurfaceName()
-    if string.isNotEmptyString(surface_name) and type(game.surfaces[surface_name]) ~= 'nil' then 
-        return RitnPortalSurface(game.surfaces[surface_name])
+    if string.isNotEmptyString(surface_name) and type(game.get_surface(surface_name)) ~= 'nil' then 
+        return RitnPortalSurface(game.get_surface(surface_name))
     end
 end
 
@@ -504,7 +504,7 @@ function RitnGuiPortal:action_link()
     -- Récupération du RitnPortal (destination)
     util.tryCatch(
         function() 
-            local rSurfaceDestination = RitnPortalSurface(game.surfaces[surface_destination])
+            local rSurfaceDestination = RitnPortalSurface(game.get_surface(surface_destination))
             rPortalDestination = rSurfaceDestination:getPortal(input_request.id)
             log('> RitnGuiPortal:action_link() => (try) id: ' .. input_request.id)
         end,
